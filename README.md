@@ -1,6 +1,6 @@
 # flutter_chat_pro
 
-A new Flutter project.
+A Complete Flutter and Firebase Chat Application
 
 ## Getting Started
 
@@ -14,3 +14,31 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+<img src="assets/images/Screenshot_1.png"  width="270" height="585">
+<img src="assets/images/Screenshot_2.png"  width="270" height="585">
+<img src="assets/images/Screenshot_2.png"  width="270" height="585">
+<img src="assets/images/Screenshot_2.png"  width="270" height="585">
+<img src="assets/images/Screenshot_2.png"  width="270" height="585">
+
+## Usage
+
+1. Clone the repository
+
+2. Create a Firebase Application and connect the Application to Firebase
+
+3. After your application is connected to Firebase you  will have the following files
+  - lib/firebase_options.dart
+  - android/app/google-services.json
+  - ios/Runner/GoogleServices-info.plist
+
+4. After the above you can delete the sample files below because you dont need them
+  - lib/firebase_options_sample.dart
+  - android/app/google-services-sample.json
+  - ios/Runner/GoogleServices-info-sample.plist
+
+## YOU CAN NOW RUN THE APP AND ENJOY -  HAPPY CODING
+
+## Contributions
+
+   All contributions are welcome!
