@@ -21,12 +21,16 @@ samples, guidance on mobile development, and a full API reference.
 <img src="assets/images/Screenshot_5.png"  width="270" height="585">
 <img src="assets/images/Screenshot_6.png"  width="270" height="585">
 
-| Screenshot 1 | Screenshot 2 |
-|---|---|
-| ![Screenshot_1](<img src="assets/images/Screenshot_1.png"  width="270" height="585">) | ![Screenshot_2](assets/images/Screenshot_3.png height="200" width="300") |
-| Screenshot 3 | Screenshot 4 |
-|---|---|
-| ![Screenshot_3](assets/images/Screenshot_4.png width="200" height="300") | ![Screenshot_4](assets/images/Screenshot_5.png height="200" width="300") |
+<div align="center">
+  <img src="assets/images/Screenshot_1.png" width="270" height="585">
+  <img src="assets/images/Screenshot_3.png" width="270" height="585">
+  <img src="assets/images/Screenshot_4.png" width="270" height="585">
+</div>
+
+<div align="center">
+  <img src="assets/images/Screenshot_5.png" width="270" height="585">
+  <img src="assets/images/Screenshot_6.png" width="270" height="585">
+</div>
 
 ## Usage
 
