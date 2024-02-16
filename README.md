@@ -15,21 +15,34 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-<img src="assets/images/Screenshot_1.png"  width="270" height="585">
-<img src="assets/images/Screenshot_3.png"  width="270" height="585">
-<img src="assets/images/Screenshot_4.png"  width="270" height="585">
-<img src="assets/images/Screenshot_5.png"  width="270" height="585">
-<img src="assets/images/Screenshot_6.png"  width="270" height="585">
+
 
 <div align="center">
   <img src="assets/images/Screenshot_1.png" width="270" height="585">
+  <img src="assets/images/Screenshot_2.png" width="270" height="585">
   <img src="assets/images/Screenshot_3.png" width="270" height="585">
-  <img src="assets/images/Screenshot_4.png" width="270" height="585">
 </div>
 
 <div align="center">
+  <img src="assets/images/Screenshot_4.png" width="270" height="585">
   <img src="assets/images/Screenshot_5.png" width="270" height="585">
   <img src="assets/images/Screenshot_6.png" width="270" height="585">
+</div>
+
+<div align="center">
+  <img src="assets/images/Screenshot_7.png" width="270" height="585">
+  <img src="assets/images/Screenshot_8.png" width="270" height="585">
+  <img src="assets/images/Screenshot_9.png" width="270" height="585">
+</div>
+
+<div align="center">
+  <img src="assets/images/Screenshot_10.png" width="270" height="585">
+  <img src="assets/images/Screenshot_11.png" width="270" height="585">
+  <img src="assets/images/Screenshot_12.png" width="270" height="585">
+</div>
+
+<div align="center">
+  <img src="assets/images/Screenshot_13.png" width="270" height="585">
 </div>
 
 ## Usage
