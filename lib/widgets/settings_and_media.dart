@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/main_screen/group_settings_screen.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';

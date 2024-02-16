@@ -18,9 +18,9 @@ samples, guidance on mobile development, and a full API reference.
 
 
 <div align="center">
-  <img src="assets/images/Screenshot_1.png" width="200" height="400">
-  <img src="assets/images/Screenshot_2.png" width="200" height="400">
-  <img src="assets/images/Screenshot_3.png" width="200" height="400">
+  <img src="assets/images/Screenshot_1.png" width="270" height="585">
+  <img src="assets/images/Screenshot_2.png" width="270" height="585">
+  <img src="assets/images/Screenshot_3.png" width="270" height="585">
 </div>
 
 <div align="center">
@@ -61,7 +61,7 @@ samples, guidance on mobile development, and a full API reference.
   - android/app/google-services-sample.json
   - ios/Runner/GoogleServices-info-sample.plist
 
-## YOU CAN NOW RUN THE APP AND ENJOY -  HAPPY CODING
+## YOU CAN NOW RUN THE APP AND ENJOY -  HAPPY CODING :heart:
 
 ## Contributions
 
