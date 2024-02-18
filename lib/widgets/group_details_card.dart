@@ -1,53 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_pro/main_screen/friend_requests_screen.dart';
+import 'package:flutter_chat_pro/models/user_model.dart';
+import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/widgets/profile_widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class GroupDetailsCard extends StatelessWidget {
-  const GroupDetailsCard({
+class InfoDetailsCard extends StatelessWidget {
+  const InfoDetailsCard({
     super.key,
-    required this.groupProvider,
-    required this.isAdmin,
+    this.groupProvider,
+    this.isAdmin,
+    this.userModel,
   });
 
-  final GroupProvider groupProvider;
-  final bool isAdmin;
+  final GroupProvider? groupProvider;
+  final bool? isAdmin;
+  final UserModel? userModel;
 
   @override
   Widget build(BuildContext context) {
-    // get requestWidget
-    Widget getRequestWidget() {
-      // check if user is admin
-      if (isAdmin) {
-        // chec if there is any request
-        if (groupProvider.groupModel.awaitingApprovalUIDs.isNotEmpty) {
-          return InkWell(
-            onTap: () {
-              // navigate to add members screen
-              // navigate to friend requests screen
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return FriendRequestScreen(
-                  groupId: groupProvider.groupModel.groupId,
-                );
-              }));
-            },
-            child: const CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.orangeAccent,
-              child: Icon(
-                Icons.person_add,
-                color: Colors.white,
-                size: 15,
-              ),
-            ),
-          );
-        } else {
-          return const SizedBox();
-        }
-      } else {
-        return const SizedBox();
-      }
-    }
+    // get current user
+    final currentUser = context.read<AuthenticationProvider>().userModel!;
+    // get profile image
+    final profileImage = userModel != null
+        ? userModel!.image
+        : groupProvider!.groupModel.groupImage;
+    // get profile name
+    final profileName = userModel != null
+        ? userModel!.name
+        : groupProvider!.groupModel.groupName;
+
+    // get group description
+    final aboutMe = userModel != null
+        ? userModel!.aboutMe
+        : groupProvider!.groupModel.groupDescription;
 
     return Card(
       elevation: 2,
@@ -60,63 +48,40 @@ class GroupDetailsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 userImageWidget(
-                    imageUrl: groupProvider.groupModel.groupImage,
-                    radius: 50,
-                    onTap: () {}),
+                    imageUrl: profileImage, radius: 50, onTap: () {}),
                 const SizedBox(width: 10),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      groupProvider.groupModel.groupName,
+                      profileName,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: !isAdmin
-                              ? null
-                              : () {
-                                  // show dialog to change group type
-                                  showMyAnimatedDialog(
-                                    context: context,
-                                    title: 'Change Group Type',
-                                    content:
-                                        'Are you sure you want to change the group type to ${groupProvider.groupModel.isPrivate ? 'Public' : 'Private'}?',
-                                    textAction: 'Change',
-                                    onActionTap: (value) {
-                                      if (value) {
-                                        // change group type
-                                        groupProvider.changeGroupType();
-                                      }
-                                    },
-                                  );
-                                },
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: isAdmin ? Colors.deepPurple : Colors.grey,
-                              borderRadius: BorderRadius.circular(5),
+                    // display phone number
+                    userModel != null && currentUser.uid == userModel!.uid
+                        ? Text(
+                            currentUser.phoneNumber,
+                            style: GoogleFonts.openSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
-                            child: Text(
-                              groupProvider.groupModel.isPrivate
-                                  ? 'Private'
-                                  : 'Public',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    const SizedBox(height: 5),
+                    userModel != null
+                        ? ProfileStatusWidget(
+                            userModel: userModel!,
+                            currentUser: currentUser,
+                          )
+                        : GroupStatusWidget(
+                            isAdmin: isAdmin!,
+                            groupProvider: groupProvider!,
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        getRequestWidget(),
-                      ],
-                    ),
+
+                    const SizedBox(height: 10),
                   ],
                 )
               ],
@@ -125,13 +90,13 @@ class GroupDetailsCard extends StatelessWidget {
               color: Colors.grey,
               thickness: 1,
             ),
-            const Text('Group Description',
-                style: TextStyle(
+            Text(userModel != null ? 'About Me' : 'Group Description',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 )),
             Text(
-              groupProvider.groupModel.groupDescription,
+              aboutMe,
               style: const TextStyle(
                 fontSize: 16,
               ),

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/widgets/audio_player_widget.dart';
 import 'package:flutter_chat_pro/widgets/video_player_widget.dart';

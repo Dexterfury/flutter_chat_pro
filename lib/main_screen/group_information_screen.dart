@@ -41,7 +41,7 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                GroupDetailsCard(
+                InfoDetailsCard(
                   groupProvider: groupProvider,
                   isAdmin: isAdmin,
                 ),
