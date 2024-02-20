@@ -386,10 +386,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_reactions
-      sha256: "79b6a27e7515ca5270ba6d347d07ba9b5fe83b52e49e5cd8ee8c5f4e4751ecd5"
+      sha256: "5c984cce4eb3e81a0760a0b04d38b58267395aad61d9b25b1dc4237642c0ef83"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.8"
   flutter_lints:
     dependency: "direct dev"
     description:

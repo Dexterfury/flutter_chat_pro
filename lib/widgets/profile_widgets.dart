@@ -206,9 +206,10 @@ class FriendsButton extends StatelessWidget {
                   },
                   label: 'Unfriend',
                   width: MediaQuery.of(context).size.width * 0.4,
-                  backgroundColor: Theme.of(context).cardColor,
+                  backgroundColor: Colors.deepPurple,
                   textColor: Colors.white,
                 ),
+                const SizedBox(width: 10),
                 MyElevatedButton(
                   onPressed: () async {
                     // navigate to chat screen

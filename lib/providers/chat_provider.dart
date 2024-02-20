@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
@@ -14,8 +15,18 @@ class ChatProvider extends ChangeNotifier {
   bool _isLoading = false;
   MessageReplyModel? _messageReplyModel;
 
+  String _searchQuery = '';
+
+  // getters
+  String get searchQuery => _searchQuery;
+
   bool get isLoading => _isLoading;
   MessageReplyModel? get messageReplyModel => _messageReplyModel;
+
+  void setSearchQuery(String value) {
+    _searchQuery = value;
+    notifyListeners();
+  }
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -625,5 +636,137 @@ class ChatProvider extends ChangeNotifier {
           .doc(currentUserId)
           .update({Constants.isSeen: true});
     }
+  }
+
+  // delete message
+  Future<void> deleteMessage({
+    required String currentUserId,
+    required String contactUID,
+    required String messageId,
+    required String messageType,
+    required bool isGroupChat,
+    required bool deleteForEveryone,
+  }) async {
+    // set loading
+    setLoading(true);
+
+    // check if its group chat
+    if (isGroupChat) {
+      // handle group message
+      await _firestore
+          .collection(Constants.groups)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .doc(messageId)
+          .update({
+        Constants.deletedBy: FieldValue.arrayUnion([currentUserId])
+      });
+
+      // is is delete for everyone and message type is not text, we also dele the file from storage
+      if (deleteForEveryone) {
+        // get all group members uids and put them in deletedBy list
+        final groupData =
+            await _firestore.collection(Constants.groups).doc(contactUID).get();
+
+        final List<String> groupMembers =
+            List<String>.from(groupData.data()![Constants.membersUIDs]);
+
+        // update the message as deleted for everyone
+        await _firestore
+            .collection(Constants.groups)
+            .doc(contactUID)
+            .collection(Constants.messages)
+            .doc(messageId)
+            .update({Constants.deletedBy: FieldValue.arrayUnion(groupMembers)});
+
+        if (messageType != MessageEnum.text.name) {
+          // delete the file from storage
+          await deleteFileFromStorage(
+            currentUserId: currentUserId,
+            contactUID: contactUID,
+            messageId: messageId,
+            messageType: messageType,
+          );
+        }
+      }
+
+      // set loading to false
+      setLoading(false);
+    } else {
+      // handle contact message
+      // 1. update the current message as deleted
+      await _firestore
+          .collection(Constants.users)
+          .doc(currentUserId)
+          .collection(Constants.chats)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .doc(messageId)
+          .update({
+        Constants.deletedBy: FieldValue.arrayUnion([currentUserId])
+      });
+      // 2. check if delete for everyone then return if false
+      if (!deleteForEveryone) {
+        // set loading to false
+        setLoading(false);
+        return;
+      }
+
+      // 3. update the contact message as deleted
+      await _firestore
+          .collection(Constants.users)
+          .doc(contactUID)
+          .collection(Constants.chats)
+          .doc(currentUserId)
+          .collection(Constants.messages)
+          .doc(messageId)
+          .update({
+        Constants.deletedBy: FieldValue.arrayUnion([currentUserId])
+      });
+
+      // 4. delete the file from storage
+      if (messageType != MessageEnum.text.name) {
+        await deleteFileFromStorage(
+          currentUserId: currentUserId,
+          contactUID: contactUID,
+          messageId: messageId,
+          messageType: messageType,
+        );
+      }
+
+      // set loading to false
+      setLoading(false);
+    }
+  }
+
+  Future<void> deleteFileFromStorage({
+    required String currentUserId,
+    required String contactUID,
+    required String messageId,
+    required String messageType,
+  }) async {
+    final firebaseStorage = FirebaseStorage.instance;
+    // delete the file from storage
+    await firebaseStorage
+        .ref(
+            '${Constants.chatFiles}/$messageType/$currentUserId/$contactUID/$messageId')
+        .delete();
+  }
+
+  // stream the last message collection
+  Stream<QuerySnapshot> getLastMessageStream({
+    required String userId,
+    required String groupId,
+  }) {
+    return groupId.isNotEmpty
+        ? _firestore
+            .collection(Constants.groups)
+            .where(Constants.membersUIDs, arrayContains: userId)
+            .snapshots()
+        : _firestore
+            .collection(Constants.users)
+            .doc(userId)
+            .collection(Constants.chats)
+            .snapshots();
   }
 }

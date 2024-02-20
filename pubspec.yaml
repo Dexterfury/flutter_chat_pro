@@ -62,7 +62,7 @@ dependencies:
   cached_video_player: ^2.0.4
   emoji_picker_flutter: ^1.6.3
   animate_do: ^3.1.2
-  flutter_chat_reactions: ^0.0.5
+  flutter_chat_reactions: ^0.0.8
 
 dev_dependencies:
   flutter_test:

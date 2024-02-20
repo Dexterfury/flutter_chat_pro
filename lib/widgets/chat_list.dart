@@ -5,6 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/models/message_reply_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
+import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/align_message_left_widget.dart';
 import 'package:flutter_chat_pro/widgets/align_message_right_widget.dart';
@@ -61,15 +62,116 @@ class _ChatListState extends State<ChatList> {
         showSnackBar(context, 'Message copied to clipboard');
         break;
       case 'Delete':
-        // TODO delete message
-        // context.read<ChatProvider>().deleteMessage(
-        //             userId: uid,
-        //             contactUID: widget.contactUID,
-        //             messageId: message.messageId,
-        //             groupId: widget.groupId,
-        //           );
+        final currentUserId =
+            context.read<AuthenticationProvider>().userModel!.uid;
+        final groupProvider = context.read<GroupProvider>();
+
+        if (widget.groupId.isNotEmpty) {
+          if (groupProvider.isSenderOrAdmin(
+              message: message, uid: currentUserId)) {
+            showDeletBottomSheet(
+              message: message,
+              currentUserId: currentUserId,
+              isSenderOrAdmin: true,
+            );
+            return;
+          } else {
+            showDeletBottomSheet(
+              message: message,
+              currentUserId: currentUserId,
+              isSenderOrAdmin: false,
+            );
+            return;
+          }
+        }
+        showDeletBottomSheet(
+          message: message,
+          currentUserId: currentUserId,
+          isSenderOrAdmin: true,
+        );
         break;
     }
+  }
+
+  void showDeletBottomSheet({
+    required MessageModel message,
+    required String currentUserId,
+    required bool isSenderOrAdmin,
+  }) {
+    showModalBottomSheet(
+        context: context,
+        isDismissible: false,
+        builder: (context) {
+          return Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+            return SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20.0,
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (chatProvider.isLoading) const LinearProgressIndicator(),
+                    ListTile(
+                      leading: const Icon(Icons.delete),
+                      title: const Text('Delete for me'),
+                      onTap: chatProvider.isLoading
+                          ? null
+                          : () async {
+                              await chatProvider
+                                  .deleteMessage(
+                                currentUserId: currentUserId,
+                                contactUID: widget.contactUID,
+                                messageId: message.messageId,
+                                messageType: message.messageType.name,
+                                isGroupChat: widget.groupId.isNotEmpty,
+                                deleteForEveryone: false,
+                              )
+                                  .whenComplete(() {
+                                Navigator.pop(context);
+                              });
+                            },
+                    ),
+                    isSenderOrAdmin
+                        ? ListTile(
+                            leading: const Icon(Icons.delete_forever),
+                            title: const Text('Delete for everyone'),
+                            onTap: chatProvider.isLoading
+                                ? null
+                                : () async {
+                                    await chatProvider
+                                        .deleteMessage(
+                                      currentUserId: currentUserId,
+                                      contactUID: widget.contactUID,
+                                      messageId: message.messageId,
+                                      messageType: message.messageType.name,
+                                      isGroupChat: widget.groupId.isNotEmpty,
+                                      deleteForEveryone: true,
+                                    )
+                                        .whenComplete(() {
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                          )
+                        : const SizedBox.shrink(),
+                    ListTile(
+                      leading: const Icon(Icons.cancel),
+                      title: const Text('cancel'),
+                      onTap: chatProvider.isLoading
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                            },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        });
   }
 
   void sendReactionToMessage(
@@ -190,71 +292,76 @@ class _ChatListState extends State<ChatList> {
 
               // check if we sent the last message
               final isMe = element.senderUID == uid;
-              return GestureDetector(
-                onLongPress: () async {
-                  Navigator.of(context).push(
-                    HeroDialogRoute(builder: (context) {
-                      return ReactionsDialogWidget(
-                        id: element.messageId,
-                        messageWidget: isMe
-                            ? AlignMessageRightWidget(
-                                message: message,
-                                viewOnly: true,
-                                isGroupChat: widget.groupId.isNotEmpty,
-                              )
-                            : AlignMessageLeftWidget(
-                                message: message,
-                                viewOnly: true,
-                                isGroupChat: widget.groupId.isNotEmpty,
-                              ),
-                        onReactionTap: (reaction) {
-                          if (reaction == '➕') {
-                            showEmojiContainer(
-                              messageId: element.messageId,
+              // if the deletedBy contains the current user id then dont show the message
+              bool deletedByCurrentUser = message.deletedBy.contains(uid);
+              return deletedByCurrentUser
+                  ? const SizedBox.shrink()
+                  : GestureDetector(
+                      onLongPress: () async {
+                        Navigator.of(context).push(
+                          HeroDialogRoute(builder: (context) {
+                            return ReactionsDialogWidget(
+                              id: element.messageId,
+                              messageWidget: isMe
+                                  ? AlignMessageRightWidget(
+                                      message: message,
+                                      viewOnly: true,
+                                      isGroupChat: widget.groupId.isNotEmpty,
+                                    )
+                                  : AlignMessageLeftWidget(
+                                      message: message,
+                                      viewOnly: true,
+                                      isGroupChat: widget.groupId.isNotEmpty,
+                                    ),
+                              onReactionTap: (reaction) {
+                                if (reaction == '➕') {
+                                  showEmojiContainer(
+                                    messageId: element.messageId,
+                                  );
+                                } else {
+                                  sendReactionToMessage(
+                                    reaction: reaction,
+                                    messageId: element.messageId,
+                                  );
+                                }
+                              },
+                              onContextMenuTap: (item) {
+                                onContextMenyClicked(
+                                  item: item.label,
+                                  message: message,
+                                );
+                              },
+                              widgetAlignment: isMe
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
                             );
-                          } else {
-                            sendReactionToMessage(
-                              reaction: reaction,
-                              messageId: element.messageId,
+                          }),
+                        );
+                      },
+                      child: Hero(
+                        tag: element.messageId,
+                        child: MessageWidget(
+                          message: element,
+                          onRightSwipe: () {
+                            // set the message reply to true
+                            final messageReply = MessageReplyModel(
+                              message: element.message,
+                              senderUID: element.senderUID,
+                              senderName: element.senderName,
+                              senderImage: element.senderImage,
+                              messageType: element.messageType,
+                              isMe: isMe,
                             );
-                          }
-                        },
-                        onContextMenuTap: (item) {
-                          onContextMenyClicked(
-                            item: item.label,
-                            message: message,
-                          );
-                        },
-                        widgetAlignment:
-                            isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      );
-                    }),
-                  );
-                },
-                child: Hero(
-                  tag: element.messageId,
-                  child: MessageWidget(
-                    message: element,
-                    onRightSwipe: () {
-                      // set the message reply to true
-                      final messageReply = MessageReplyModel(
-                        message: element.message,
-                        senderUID: element.senderUID,
-                        senderName: element.senderName,
-                        senderImage: element.senderImage,
-                        messageType: element.messageType,
-                        isMe: isMe,
-                      );
 
-                      context
-                          .read<ChatProvider>()
-                          .setMessageReplyModel(messageReply);
-                    },
-                    isMe: isMe,
-                    isGroupChat: widget.groupId.isNotEmpty,
-                  ),
-                ),
-              );
+                            context
+                                .read<ChatProvider>()
+                                .setMessageReplyModel(messageReply);
+                          },
+                          isMe: isMe,
+                          isGroupChat: widget.groupId.isNotEmpty,
+                        ),
+                      ),
+                    );
             },
             groupComparator: (value1, value2) => value2.compareTo(value1),
             itemComparator: (item1, item2) {

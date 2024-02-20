@@ -14,7 +14,6 @@ import 'package:flutter_chat_pro/main_screen/group_information_screen.dart';
 import 'package:flutter_chat_pro/main_screen/group_settings_screen.dart';
 import 'package:flutter_chat_pro/main_screen/home_screen.dart';
 import 'package:flutter_chat_pro/main_screen/profile_screen.dart';
-import 'package:flutter_chat_pro/main_screen/settings_screen.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
@@ -72,7 +71,6 @@ class MyApp extends StatelessWidget {
               const UserInformationScreen(),
           Constants.homeScreen: (context) => const HomeScreen(),
           Constants.profileScreen: (context) => const ProfileScreen(),
-          Constants.settingsScreen: (context) => const SettingsScreen(),
           Constants.friendsScreen: (context) => const FriendsScreen(),
           Constants.friendRequestsScreen: (context) =>
               const FriendRequestScreen(),

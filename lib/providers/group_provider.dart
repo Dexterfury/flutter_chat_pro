@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/models/group_model.dart';
+import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:uuid/uuid.dart';
@@ -385,5 +386,16 @@ class GroupProvider extends ChangeNotifier {
     _groupModel.awaitingApprovalUIDs.remove(friendID);
     _groupModel.membersUIDs.add(friendID);
     notifyListeners();
+  }
+
+  // check if is sender or admin
+  bool isSenderOrAdmin({required MessageModel message, required String uid}) {
+    if (message.senderUID == uid) {
+      return true;
+    } else if (_groupModel.adminsUIDs.contains(uid)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
