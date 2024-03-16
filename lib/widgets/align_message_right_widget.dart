@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/widgets/display_message_type.dart';
 import 'package:flutter_chat_pro/widgets/message_reply_preview.dart';
-import 'package:flutter_chat_pro/widgets/stacked_reactions.dart';
+import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
 import 'package:provider/provider.dart';
 
 class AlignMessageRightWidget extends StatelessWidget {
@@ -24,6 +24,9 @@ class AlignMessageRightWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
+    // get the reations from the list
+    final messageReations =
+        message.reactions.map((e) => e.split('=')[1]).toList();
     final padding = message.reactions.isNotEmpty
         ? const EdgeInsets.only(left: 20.0, bottom: 25.0)
         : const EdgeInsets.only(bottom: 0.0);
@@ -118,12 +121,8 @@ class AlignMessageRightWidget extends StatelessWidget {
             Positioned(
               bottom: 4,
               right: 30,
-              child: StackedReactionWidget(
-                message: message,
-                size: 20,
-                onTap: () {
-                  // TODO show bottom shee with list of people who reacted
-                },
+              child: StackedReactions(
+                reactions: messageReations,
               ),
             )
           ],
@@ -132,48 +131,3 @@ class AlignMessageRightWidget extends StatelessWidget {
     );
   }
 }
-
-// Positioned(
-//                   bottom: 4,
-//                   right: 10,
-//                   child: Row(
-//                     children: [
-//                       Text(
-//                         time,
-//                         style: const TextStyle(
-//                             color: Colors.white60, fontSize: 10),
-//                       ),
-//                       const SizedBox(
-//                         width: 5,
-//                       ),
-//                       Icon(
-//                         messageSeen() ? Icons.done_all : Icons.done,
-//                         color: messageSeen() ? Colors.blue : Colors.white60,
-//                         size: 15,
-//                       ),
-//                     ],
-//                   ))
-
-// isMe
-//                       ? Positioned(
-//                           bottom: 4,
-//                           right: 90,
-//                           child: StackedReactionWidget(
-//                             message: element,
-//                             size: 20,
-//                             onTap: () {
-//                               // TODO show bottom shee with list of people who reacted
-//                             },
-//                           ),
-//                         )
-//                       : Positioned(
-//                           bottom: 0,
-//                           left: 50,
-//                           child: StackedReactionWidget(
-//                             message: element,
-//                             size: 20,
-//                             onTap: () {
-//                               // TODO show bottom shee with list of people who reacted
-//                             },
-//                           ),
-//                         ),

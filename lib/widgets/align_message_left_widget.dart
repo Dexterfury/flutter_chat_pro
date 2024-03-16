@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/display_message_type.dart';
 import 'package:flutter_chat_pro/widgets/message_reply_preview.dart';
-import 'package:flutter_chat_pro/widgets/stacked_reactions.dart';
+import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
 
 class AlignMessageLeftWidget extends StatelessWidget {
   const AlignMessageLeftWidget({
@@ -23,7 +23,9 @@ class AlignMessageLeftWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
-    final senderName = message.repliedTo == 'You' ? message.senderName : 'You';
+    // get the reations from the list
+    final messageReations =
+        message.reactions.map((e) => e.split('=')[1]).toList();
     // check if its dark mode
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final padding = message.reactions.isNotEmpty
@@ -99,12 +101,8 @@ class AlignMessageLeftWidget extends StatelessWidget {
                 Positioned(
                   bottom: 0,
                   left: 50,
-                  child: StackedReactionWidget(
-                    message: message,
-                    size: 20,
-                    onTap: () {
-                      // TODO show bottom shee with list of people who reacted
-                    },
+                  child: StackedReactions(
+                    reactions: messageReations,
                   ),
                 ),
               ],
@@ -115,16 +113,3 @@ class AlignMessageLeftWidget extends StatelessWidget {
     );
   }
 }
-
-// Positioned(
-//                     bottom: 4,
-//                     right: 10,
-//                     child: Text(
-//                       time,
-//                       style: TextStyle(
-//                           color: isDarkMode
-//                               ? Colors.white60
-//                               : Colors.grey.shade500,
-//                           fontSize: 10),
-//                     ),
-//                   )

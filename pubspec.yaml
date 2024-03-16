@@ -41,7 +41,7 @@ dependencies:
   firebase_storage: ^11.5.6
   cloud_firestore: ^4.13.6
   country_picker: ^2.0.23
-  rounded_loading_button: ^2.1.0
+  # rounded_loading_button: ^2.1.0
   provider: ^6.1.1
   lottie: ^2.7.0
   shared_preferences: ^2.2.2
@@ -62,7 +62,7 @@ dependencies:
   cached_video_player: ^2.0.4
   emoji_picker_flutter: ^1.6.3
   animate_do: ^3.1.2
-  flutter_chat_reactions: ^0.0.8
+  flutter_chat_reactions: ^0.1.0
 
 dev_dependencies:
   flutter_test:

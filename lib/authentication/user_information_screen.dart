@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
-import 'package:flutter_chat_pro/utilities/assets_manager.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
 import 'package:flutter_chat_pro/widgets/display_user_image.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:provider/provider.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 class UserInformationScreen extends StatefulWidget {
   const UserInformationScreen({super.key});
@@ -19,15 +18,15 @@ class UserInformationScreen extends StatefulWidget {
 }
 
 class _UserInformationScreenState extends State<UserInformationScreen> {
-  final RoundedLoadingButtonController _btnController =
-      RoundedLoadingButtonController();
+  // final RoundedLoadingButtonController _btnController =
+  //     RoundedLoadingButtonController();
   final TextEditingController _nameController = TextEditingController();
   File? finalFileImage;
   String userImage = '';
 
   @override
   void dispose() {
-    _btnController.stop();
+    //_btnController.stop();
     _nameController.dispose();
     super.dispose();
   }
@@ -134,34 +133,65 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            SizedBox(
+            const SizedBox(height: 40),
+            Container(
               width: double.infinity,
-              child: RoundedLoadingButton(
-                controller: _btnController,
-                onPressed: () {
-                  if (_nameController.text.isEmpty ||
-                      _nameController.text.length < 3) {
-                    showSnackBar(context, 'Please enter your name');
-                    _btnController.reset();
-                    return;
-                  }
-                  // save user data to firestore
-                  saveUserDataToFireStore();
-                },
-                successIcon: Icons.check,
-                successColor: Colors.green,
-                errorColor: Colors.red,
+              height: 50,
+              decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                borderRadius: BorderRadius.circular(25),
               ),
+              child: MaterialButton(
+                onPressed: context.read<AuthenticationProvider>().isLoading
+                    ? null
+                    : () {
+                        if (_nameController.text.isEmpty ||
+                            _nameController.text.length < 3) {
+                          showSnackBar(context, 'Please enter your name');
+                          return;
+                        }
+                        // save user data to firestore
+                        saveUserDataToFireStore();
+                      },
+                child: context.watch<AuthenticationProvider>().isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.orangeAccent,
+                      )
+                    : const Text(
+                        'Continue',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.5),
+                      ),
+              ),
+
+              // RoundedLoadingButton(
+              //   controller: _btnController,
+              //   onPressed: () {
+              //     if (_nameController.text.isEmpty ||
+              //         _nameController.text.length < 3) {
+              //       showSnackBar(context, 'Please enter your name');
+              //       _btnController.reset();
+              //       return;
+              //     }
+              //     // save user data to firestore
+              //     saveUserDataToFireStore();
+              //   },
+              //   successIcon: Icons.check,
+              //   successColor: Colors.green,
+              //   errorColor: Colors.red,
+              //   color: Theme.of(context).primaryColor,
+              //   child: const Text(
+              //     'Continue',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w500,
+              //     ),
+              //   ),
+              // ),
             ),
           ],
         ),
@@ -192,17 +222,13 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
       userModel: userModel,
       fileImage: finalFileImage,
       onSuccess: () async {
-        _btnController.success();
         // save user data to shared preferences
         await authProvider.saveUserDataToSharedPreferences();
 
         navigateToHomeScreen();
       },
       onFail: () async {
-        _btnController.error();
         showSnackBar(context, 'Failed to save user data');
-        await Future.delayed(const Duration(seconds: 1));
-        _btnController.reset();
       },
     );
   }
