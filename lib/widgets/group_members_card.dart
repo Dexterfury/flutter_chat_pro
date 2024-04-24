@@ -3,7 +3,7 @@ import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 
-class GoupMembersCard extends StatelessWidget {
+class GoupMembersCard extends StatefulWidget {
   const GoupMembersCard({
     super.key,
     required this.isAdmin,
@@ -14,13 +14,18 @@ class GoupMembersCard extends StatelessWidget {
   final GroupProvider groupProvider;
 
   @override
+  State<GoupMembersCard> createState() => _GoupMembersCardState();
+}
+
+class _GoupMembersCardState extends State<GoupMembersCard> {
+  @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       child: Column(
         children: [
           FutureBuilder<List<UserModel>>(
-            future: groupProvider.getGroupMembersDataFromFirestore(
+            future: widget.groupProvider.getGroupMembersDataFromFirestore(
               isAdmin: false,
             ),
             builder: (context, snapshot) {
@@ -51,14 +56,14 @@ class GoupMembersCard extends StatelessWidget {
                           imageUrl: member.image, radius: 40, onTap: () {}),
                       title: Text(member.name),
                       subtitle: Text(member.aboutMe),
-                      trailing: groupProvider.groupModel.adminsUIDs
+                      trailing: widget.groupProvider.groupModel.adminsUIDs
                               .contains(member.uid)
                           ? const Icon(
                               Icons.admin_panel_settings,
                               color: Colors.orangeAccent,
                             )
                           : const SizedBox(),
-                      onTap: !isAdmin
+                      onTap: !widget.isAdmin
                           ? null
                           : () {
                               // show dialog to remove member
@@ -68,12 +73,15 @@ class GoupMembersCard extends StatelessWidget {
                                 content:
                                     'Are you sure you want to remove ${member.name} from the group?',
                                 textAction: 'Remove',
-                                onActionTap: (value) {
+                                onActionTap: (value) async {
                                   if (value) {
-                                    // remove member from group
-                                    // groupProvider
-                                    //     .removeMemberFromGroup(
-                                    //         member: member,);
+                                    //remove member from group
+                                    await widget.groupProvider
+                                        .removeGroupMember(
+                                      groupMember: member,
+                                    );
+
+                                    setState(() {});
                                   }
                                 },
                               );

@@ -132,7 +132,7 @@ class GroupProvider extends ChangeNotifier {
   }
 
   // remove member from group
-  void removeGroupMember({required UserModel groupMember}) {
+  Future<void> removeGroupMember({required UserModel groupMember}) async {
     _groupMembersList.remove(groupMember);
     // also remove this member from admins list if he is an admin
     _groupAdminsList.remove(groupMember);
@@ -397,5 +397,34 @@ class GroupProvider extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  // exit group
+  Future<void> exitGroup({
+    required String uid,
+  }) async {
+    // check if the user is the admin of the group
+    bool isAdmin = _groupModel.adminsUIDs.contains(uid);
+
+    await _firestore
+        .collection(Constants.groups)
+        .doc(_groupModel.groupId)
+        .update({
+      Constants.membersUIDs: FieldValue.arrayRemove([uid]),
+      Constants.adminsUIDs:
+          isAdmin ? FieldValue.arrayRemove([uid]) : _groupModel.adminsUIDs,
+    });
+
+    // remove the user from group members list
+    _groupMembersList.removeWhere((element) => element.uid == uid);
+    // remove the user from group members uid
+    _groupModel.membersUIDs.remove(uid);
+    if (isAdmin) {
+      // remove the user from group admins list
+      _groupAdminsList.removeWhere((element) => element.uid == uid);
+      // remove the user from group admins uid
+      _groupModel.adminsUIDs.remove(uid);
+    }
+    notifyListeners();
   }
 }

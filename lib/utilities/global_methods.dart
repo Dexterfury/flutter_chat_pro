@@ -2,11 +2,17 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:date_format/date_format.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
+import 'package:flutter_chat_pro/models/user_model.dart';
+import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/assets_manager.dart';
+import 'package:flutter_chat_pro/widgets/friends_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 void showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -240,6 +246,63 @@ void showMyAnimatedDialog({
               ],
             ),
           ));
+    },
+  );
+}
+
+// show bottom sheet with the list of all app users to add them to the group
+void showAddMembersBottomSheet({
+  required BuildContext context,
+  required List<String> groupMembersUIDs,
+}) {
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return SizedBox(
+        height: double.infinity,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: CupertinoSearchTextField(
+                      onChanged: (value) {
+                        // search for users
+                      },
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // close bottom sheet
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(
+              thickness: 2,
+              color: Colors.grey,
+            ),
+            Expanded(
+              child: FriendsList(
+                viewType: FriendViewType.groupView,
+                groupMembersUIDs: groupMembersUIDs,
+              ),
+            ),
+          ],
+        ),
+      );
     },
   );
 }

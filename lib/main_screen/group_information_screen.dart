@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/add_members.dart';
 import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
 import 'package:flutter_chat_pro/widgets/exit_group_card.dart';
@@ -56,15 +57,27 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
                   isAdmin: isAdmin,
                   onPressed: () {
                     // show  bottom sheet to add members
+                    showAddMembersBottomSheet(
+                      context: context,
+                      groupMembersUIDs: groupProvider.groupModel.membersUIDs,
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
-                GoupMembersCard(
-                  isAdmin: isAdmin,
-                  groupProvider: groupProvider,
-                ),
-                const SizedBox(height: 10),
-                isMember ? const ExitGroupCard() : const SizedBox(),
+                isMember
+                    ? Column(
+                        children: [
+                          GoupMembersCard(
+                            isAdmin: isAdmin,
+                            groupProvider: groupProvider,
+                          ),
+                          const SizedBox(height: 10),
+                          ExitGroupCard(
+                            uid: uid,
+                          )
+                        ],
+                      )
+                    : const SizedBox(),
               ],
             )),
           ),

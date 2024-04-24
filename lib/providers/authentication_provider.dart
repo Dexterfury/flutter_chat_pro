@@ -292,7 +292,10 @@ class AuthenticationProvider extends ChangeNotifier {
   }
 
   // get a list of friends
-  Future<List<UserModel>> getFriendsList(String uid) async {
+  Future<List<UserModel>> getFriendsList(
+    String uid,
+    List<String> groupMembersUIDs,
+  ) async {
     List<UserModel> friendsList = [];
 
     DocumentSnapshot documentSnapshot =
@@ -301,6 +304,10 @@ class AuthenticationProvider extends ChangeNotifier {
     List<dynamic> friendsUIDs = documentSnapshot.get(Constants.friendsUIDs);
 
     for (String friendUID in friendsUIDs) {
+      // if groupMembersUIDs list is not empty and contains the friendUID we skip this friend
+      if (groupMembersUIDs.isNotEmpty && groupMembersUIDs.contains(friendUID)) {
+        continue;
+      }
       DocumentSnapshot documentSnapshot =
           await _firestore.collection(Constants.users).doc(friendUID).get();
       UserModel friend =

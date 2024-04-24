@@ -10,23 +10,31 @@ class FriendsList extends StatelessWidget {
     super.key,
     required this.viewType,
     this.groupId = '',
+    this.groupMembersUIDs = const [],
   });
 
   final FriendViewType viewType;
   final String groupId;
+  final List<String> groupMembersUIDs;
 
   @override
   Widget build(BuildContext context) {
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
 
     final future = viewType == FriendViewType.friends
-        ? context.read<AuthenticationProvider>().getFriendsList(uid)
+        ? context.read<AuthenticationProvider>().getFriendsList(
+              uid,
+              groupMembersUIDs,
+            )
         : viewType == FriendViewType.friendRequests
             ? context.read<AuthenticationProvider>().getFriendRequestsList(
                   uid: uid,
                   groupId: groupId,
                 )
-            : context.read<AuthenticationProvider>().getFriendsList(uid);
+            : context.read<AuthenticationProvider>().getFriendsList(
+                  uid,
+                  groupMembersUIDs,
+                );
 
     return FutureBuilder<List<UserModel>>(
       future: future,
