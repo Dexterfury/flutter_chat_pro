@@ -136,7 +136,7 @@ class GroupProvider extends ChangeNotifier {
     _groupMembersList.remove(groupMember);
     // also remove this member from admins list if he is an admin
     _groupAdminsList.remove(groupMember);
-    _groupModel.adminsUIDs.remove(groupMember.uid);
+    _groupModel.membersUIDs.remove(groupMember.uid);
     notifyListeners();
 
     // return if groupID is empty - meaning we are creating a new group
