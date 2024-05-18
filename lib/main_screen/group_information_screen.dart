@@ -3,7 +3,7 @@ import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/add_members.dart';
-import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
+import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/exit_group_card.dart';
 import 'package:flutter_chat_pro/widgets/group_details_card.dart';
 import 'package:flutter_chat_pro/widgets/group_members_card.dart';
@@ -28,12 +28,9 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
         bool isAdmin = groupProvider.groupModel.adminsUIDs.contains(uid);
 
         return Scaffold(
-          appBar: AppBar(
-            leading: AppBarBackButton(onPressed: () {
-              Navigator.pop(context);
-            }),
-            centerTitle: true,
+          appBar: MyAppBar(
             title: const Text('Group Information'),
+            onPressed: () => Navigator.pop(context),
           ),
           body: Padding(
             padding:

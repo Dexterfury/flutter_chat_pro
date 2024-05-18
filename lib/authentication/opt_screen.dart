@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
+import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +51,12 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
     );
     return Scaffold(
+      appBar: MyAppBar(
+        title: const Text('OTP Verification'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -157,7 +164,10 @@ class _OTPScreenState extends State<OTPScreen> {
                     ? const SizedBox.shrink()
                     : TextButton(
                         onPressed: () {
-                          // TODO resend otp code
+                          // reset the code to send again
+                          authProvider.resendCode(
+                            context: context,
+                          );
                         },
                         child: Text(
                           'Resend Code',

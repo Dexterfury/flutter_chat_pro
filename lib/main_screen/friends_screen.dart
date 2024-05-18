@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
-import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
+import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
 
 class FriendsScreen extends StatefulWidget {
@@ -15,14 +15,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarBackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        centerTitle: true,
+      appBar: MyAppBar(
         title: const Text('Friends'),
+        onPressed: () => Navigator.pop(context),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

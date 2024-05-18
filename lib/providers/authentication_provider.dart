@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
@@ -13,12 +14,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthenticationProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isSuccessful = false;
+  int? _resendToken;
   String? _uid;
   String? _phoneNumber;
   UserModel? _userModel;
 
   bool get isLoading => _isLoading;
   bool get isSuccessful => _isSuccessful;
+  int? get resendToken => _resendToken;
   String? get uid => _uid;
   String? get phoneNumber => _phoneNumber;
   UserModel? get userModel => _userModel;
@@ -122,6 +125,7 @@ class AuthenticationProvider extends ChangeNotifier {
       },
       codeSent: (String verificationId, int? resendToken) async {
         _isLoading = false;
+        _resendToken = resendToken;
         notifyListeners();
         // navigate to otp screen
         Navigator.of(context).pushNamed(
@@ -133,6 +137,42 @@ class AuthenticationProvider extends ChangeNotifier {
         );
       },
       codeAutoRetrievalTimeout: (String verificationId) {},
+      timeout: const Duration(seconds: 60),
+      forceResendingToken: resendToken,
+    );
+  }
+
+  // // resend code
+  Future<void> resendCode({required BuildContext context}) async {
+    _isLoading = true;
+    notifyListeners();
+
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await _auth.signInWithCredential(credential).then((value) async {
+          _uid = value.user!.uid;
+          _phoneNumber = value.user!.phoneNumber;
+          _isSuccessful = true;
+          _isLoading = false;
+          notifyListeners();
+        });
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        _isSuccessful = false;
+        _isLoading = false;
+        notifyListeners();
+        showSnackBar(context, e.toString());
+      },
+      codeSent: (String verificationId, int? resendToken) async {
+        _isLoading = false;
+        _resendToken = resendToken;
+        notifyListeners();
+        showSnackBar(context, 'Successful sent code');
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+      timeout: const Duration(seconds: 60),
+      forceResendingToken: resendToken,
     );
   }
 

@@ -8,7 +8,7 @@ import 'package:flutter_chat_pro/models/group_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
-import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
+import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/display_user_image.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
 import 'package:flutter_chat_pro/widgets/group_type_list_tile.dart';
@@ -170,12 +170,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarBackButton(
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Create Group'),
-        centerTitle: true,
+      appBar: MyAppBar(
+        title: Text('Create Group'),
+        onPressed: () => Navigator.pop(context),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),

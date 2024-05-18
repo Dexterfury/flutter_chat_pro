@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
-import 'package:flutter_chat_pro/widgets/app_bar_back_button.dart';
+import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/group_details_card.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,14 +50,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // get user data from arguments
     final uid = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
-      appBar: AppBar(
-        leading: AppBarBackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        centerTitle: true,
+      appBar: MyAppBar(
         title: const Text('Profile'),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
       body: StreamBuilder(
         stream: context.read<AuthenticationProvider>().userStream(userID: uid),
