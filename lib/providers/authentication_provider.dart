@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
@@ -19,16 +21,117 @@ class AuthenticationProvider extends ChangeNotifier {
   String? _phoneNumber;
   UserModel? _userModel;
 
+  Timer? _timer;
+  int _secondsRemaing = 60;
+
+  File? _finalFileImage;
+  String _userImage = '';
+
   bool get isLoading => _isLoading;
   bool get isSuccessful => _isSuccessful;
   int? get resendToken => _resendToken;
   String? get uid => _uid;
   String? get phoneNumber => _phoneNumber;
   UserModel? get userModel => _userModel;
+  int get secondsRemaing => _secondsRemaing;
+
+  File? get finalFileImage => _finalFileImage;
+  String get userImage => _userImage;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  void setfinalFileImage(File? file) {
+    _finalFileImage = file;
+    notifyListeners();
+  }
+
+  void showBottomSheet({
+    required BuildContext context,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              onTap: () {
+                selectImage(
+                  fromCamera: true,
+                  onSuccess: () {
+                    // pop the bottom sheet and call the onSuccess function
+                    Navigator.pop(context);
+                  },
+                  onError: (String error) {
+                    showSnackBar(context, error);
+                  },
+                );
+              },
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+            ),
+            ListTile(
+              onTap: () {
+                selectImage(
+                  fromCamera: false,
+                  onSuccess: () {
+                    // pop the bottom sheet and call the onSuccess function
+                    Navigator.pop(context);
+                  },
+                  onError: (String error) {
+                    showSnackBar(context, error);
+                  },
+                );
+              },
+              leading: const Icon(Icons.image),
+              title: const Text('Gallery'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void selectImage({
+    required bool fromCamera,
+    required Function() onSuccess,
+    required Function(String) onError,
+  }) async {
+    _finalFileImage = await pickImage(
+      fromCamera: fromCamera,
+      onFail: (String message) => onError(message),
+    );
+
+    if (finalFileImage == null) {
+      return;
+    }
+
+    // crop image
+    await cropImage(
+      filePath: finalFileImage!.path,
+      onSuccess: onSuccess,
+    );
+  }
+
+  Future<void> cropImage({
+    required String filePath,
+    required Function() onSuccess,
+  }) async {
+    setfinalFileImage(File(filePath));
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: filePath,
+      maxHeight: 800,
+      maxWidth: 800,
+      compressQuality: 90,
+    );
+
+    if (croppedFile != null) {
+      setfinalFileImage(File(croppedFile.path));
+      onSuccess();
+    }
+  }
 
   // chech authentication state
   Future<bool> checkAuthenticationState() async {
@@ -122,10 +225,13 @@ class AuthenticationProvider extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
         showSnackBar(context, e.toString());
+        log('Error: ${e.toString()}');
       },
       codeSent: (String verificationId, int? resendToken) async {
         _isLoading = false;
         _resendToken = resendToken;
+        _secondsRemaing = 60;
+        _startTimer();
         notifyListeners();
         // navigate to otp screen
         Navigator.of(context).pushNamed(
@@ -142,38 +248,70 @@ class AuthenticationProvider extends ChangeNotifier {
     );
   }
 
-  // // resend code
-  Future<void> resendCode({required BuildContext context}) async {
-    _isLoading = true;
-    notifyListeners();
+  void _startTimer() {
+    // cancel timer if any exist
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaing > 0) {
+        _secondsRemaing--;
+        notifyListeners();
+      } else {
+        // cancel timer
+        _timer?.cancel();
+        notifyListeners();
+      }
+    });
+  }
 
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential).then((value) async {
-          _uid = value.user!.uid;
-          _phoneNumber = value.user!.phoneNumber;
-          _isSuccessful = true;
+// dispose timer
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // // resend code
+  Future<void> resendCode({
+    required BuildContext context,
+    required String phone,
+  }) async {
+    if (_secondsRemaing == 0 || _resendToken != null) {
+      // allow user to resend code only if timer is not running and resend token exists
+      _isLoading = true;
+      notifyListeners();
+      _isLoading = true;
+      notifyListeners();
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential).then((value) async {
+            _uid = value.user!.uid;
+            _phoneNumber = value.user!.phoneNumber;
+            _isSuccessful = true;
+            _isLoading = false;
+            notifyListeners();
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          _isSuccessful = false;
           _isLoading = false;
           notifyListeners();
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        _isSuccessful = false;
-        _isLoading = false;
-        notifyListeners();
-        showSnackBar(context, e.toString());
-      },
-      codeSent: (String verificationId, int? resendToken) async {
-        _isLoading = false;
-        _resendToken = resendToken;
-        notifyListeners();
-        showSnackBar(context, 'Successful sent code');
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-      timeout: const Duration(seconds: 60),
-      forceResendingToken: resendToken,
-    );
+          showSnackBar(context, e.toString());
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+          _isLoading = false;
+          _resendToken = resendToken;
+          notifyListeners();
+          showSnackBar(context, 'Successful sent code');
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+        timeout: const Duration(seconds: 60),
+        forceResendingToken: resendToken,
+      );
+    } else {
+      showSnackBar(context, 'Please wait $_secondsRemaing seconds to resend');
+    }
   }
 
   // verify otp code
@@ -209,7 +347,7 @@ class AuthenticationProvider extends ChangeNotifier {
   // save user data to firestore
   void saveUserDataToFireStore({
     required UserModel userModel,
-    required File? fileImage,
+    //required File? fileImage,
     required Function onSuccess,
     required Function onFail,
   }) async {
@@ -217,10 +355,10 @@ class AuthenticationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (fileImage != null) {
+      if (_finalFileImage != null) {
         // upload image to storage
         String imageUrl = await storeFileToStorage(
-            file: fileImage,
+            file: _finalFileImage!,
             reference: '${Constants.userImages}/${userModel.uid}');
 
         userModel.image = imageUrl;
@@ -402,6 +540,43 @@ class AuthenticationProvider extends ChangeNotifier {
     }
 
     return friendRequestsList;
+  }
+
+  // update user image in firestore
+  Future<void> updateUserImage({
+    required bool isGroup,
+    required String uid,
+    File? fileImage,
+  }) async {
+    if (isGroup) {
+      String groupImage = '';
+      if (fileImage != null) {
+        // upload image to storage
+        String imageUrl = await storeFileToStorage(
+            file: fileImage, reference: '${Constants.groupImage}/$uid');
+
+        groupImage = imageUrl;
+      }
+
+      await _firestore
+          .collection(Constants.groups)
+          .doc(uid)
+          .update({Constants.groupImage: groupImage});
+    } else {
+      if (fileImage != null) {
+        // upload image to storage
+        String imageUrl = await storeFileToStorage(
+            file: fileImage, reference: '${Constants.userImages}/$uid');
+
+        _userModel!.image = imageUrl;
+        await saveUserDataToSharedPreferences();
+        notifyListeners();
+      }
+      await _firestore
+          .collection(Constants.users)
+          .doc(uid)
+          .update({Constants.image: _userModel!.image});
+    }
   }
 
   Future logout() async {

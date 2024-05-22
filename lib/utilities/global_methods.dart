@@ -4,15 +4,11 @@ import 'package:date_format/date_format.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
-import 'package:flutter_chat_pro/models/user_model.dart';
-import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/assets_manager.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 void showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -24,19 +20,31 @@ void showSnackBar(BuildContext context, String message) {
 
 Widget userImageWidget({
   required String imageUrl,
+  File? fileImage,
   required double radius,
   required Function() onTap,
 }) {
   return GestureDetector(
     onTap: onTap,
     child: CircleAvatar(
-      radius: radius,
-      backgroundColor: Colors.grey[300],
-      backgroundImage: imageUrl.isNotEmpty
-          ? CachedNetworkImageProvider(imageUrl)
-          : const AssetImage(AssetsMenager.userImage) as ImageProvider,
-    ),
+        radius: radius,
+        backgroundColor: Colors.grey[300],
+        backgroundImage: getImageToShow(
+          imageUrl: imageUrl,
+          fileImage: fileImage,
+        )),
   );
+}
+
+getImageToShow({
+  required String imageUrl,
+  required File? fileImage,
+}) {
+  return fileImage != null
+      ? FileImage(File(fileImage.path)) as ImageProvider
+      : imageUrl.isNotEmpty
+          ? CachedNetworkImageProvider(imageUrl)
+          : const AssetImage(AssetsMenager.userImage);
 }
 
 // picp image from gallery or camera

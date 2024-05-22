@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
@@ -22,7 +24,9 @@ class InfoDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // get current user
-    final currentUser = context.read<AuthenticationProvider>().userModel!;
+    final authProvider = context.read<AuthenticationProvider>();
+    final uid = authProvider.userModel!.uid;
+    final phoneNumber = authProvider.userModel!.phoneNumber;
     // get profile image
     final profileImage = userModel != null
         ? userModel!.image
@@ -48,7 +52,14 @@ class InfoDetailsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 userImageWidget(
-                    imageUrl: profileImage, radius: 50, onTap: () {}),
+                    imageUrl: profileImage,
+                    fileImage: authProvider.finalFileImage,
+                    radius: 50,
+                    onTap: () {
+                      authProvider.showBottomSheet(
+                        context: context,
+                      );
+                    }),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -61,9 +72,9 @@ class InfoDetailsCard extends StatelessWidget {
                       ),
                     ),
                     // display phone number
-                    userModel != null && currentUser.uid == userModel!.uid
+                    userModel != null && uid == userModel!.uid
                         ? Text(
-                            currentUser.phoneNumber,
+                            phoneNumber,
                             style: GoogleFonts.openSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -74,7 +85,7 @@ class InfoDetailsCard extends StatelessWidget {
                     userModel != null
                         ? ProfileStatusWidget(
                             userModel: userModel!,
-                            currentUser: currentUser,
+                            currentUser: authProvider.userModel!,
                           )
                         : GroupStatusWidget(
                             isAdmin: isAdmin!,

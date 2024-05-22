@@ -163,12 +163,15 @@ class _OTPScreenState extends State<OTPScreen> {
                 authProvider.isLoading
                     ? const SizedBox.shrink()
                     : TextButton(
-                        onPressed: () {
-                          // reset the code to send again
-                          authProvider.resendCode(
-                            context: context,
-                          );
-                        },
+                        onPressed: authProvider.secondsRemaing == 0
+                            ? () {
+                                // reset the code to send again
+                                authProvider.resendCode(
+                                  context: context,
+                                  phone: phoneNumber,
+                                );
+                              }
+                            : null,
                         child: Text(
                           'Resend Code',
                           style: GoogleFonts.openSans(

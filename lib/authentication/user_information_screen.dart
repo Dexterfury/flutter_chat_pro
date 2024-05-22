@@ -21,8 +21,6 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
   // final RoundedLoadingButtonController _btnController =
   //     RoundedLoadingButtonController();
   final TextEditingController _nameController = TextEditingController();
-  File? finalFileImage;
-  String userImage = '';
 
   @override
   void dispose() {
@@ -31,70 +29,10 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
     super.dispose();
   }
 
-  void selectImage(bool fromCamera) async {
-    finalFileImage = await pickImage(
-      fromCamera: fromCamera,
-      onFail: (String message) {
-        showSnackBar(context, message);
-      },
-    );
-
-    // crop image
-    await cropImage(finalFileImage?.path);
-
-    popContext();
-  }
-
-  popContext() {
-    Navigator.pop(context);
-  }
-
-  Future<void> cropImage(filePath) async {
-    if (filePath != null) {
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
-        sourcePath: filePath,
-        maxHeight: 800,
-        maxWidth: 800,
-        compressQuality: 90,
-      );
-
-      if (croppedFile != null) {
-        setState(() {
-          finalFileImage = File(croppedFile.path);
-        });
-      }
-    }
-  }
-
-  void showBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SizedBox(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              onTap: () {
-                selectImage(true);
-              },
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-            ),
-            ListTile(
-              onTap: () {
-                selectImage(false);
-              },
-              leading: const Icon(Icons.image),
-              title: const Text('Gallery'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final AuthenticationProvider authentication =
+        context.watch<AuthenticationProvider>();
     return Scaffold(
       appBar: MyAppBar(
         title: const Text('User Information'),
@@ -109,10 +47,12 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
         child: Column(
           children: [
             DisplayUserImage(
-              finalFileImage: finalFileImage,
+              finalFileImage: authentication.finalFileImage,
               radius: 60,
               onPressed: () {
-                showBottomSheet();
+                authentication.showBottomSheet(
+                  context: context,
+                );
               },
             ),
             const SizedBox(height: 30),
@@ -215,7 +155,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
 
     authProvider.saveUserDataToFireStore(
       userModel: userModel,
-      fileImage: finalFileImage,
+      //fileImage: finalFileImage,
       onSuccess: () async {
         // save user data to shared preferences
         await authProvider.saveUserDataToSharedPreferences();
