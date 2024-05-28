@@ -81,4 +81,13 @@ class Constants {
   static const String awaitingApprovalUIDs = 'awaitingApprovalUIDs';
 
   static const String groupImages = 'groupImages';
+
+  static const String changeName = 'changeName';
+  static const String changeDesc = 'changeDesc';
+
+  // notification
+  static const String notificationType = 'notificationType';
+  static const String groupChatNotification = 'groupChatNotification';
+  static const String chatNotification = 'chatNotification';
+  static const String friendRequestNotification = 'friendRequestNotification';
 }

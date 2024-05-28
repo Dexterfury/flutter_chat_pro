@@ -4,11 +4,14 @@ import 'package:date_format/date_format.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
+import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/assets_manager.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 void showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -213,6 +216,8 @@ void showMyAnimatedDialog({
   required String content,
   required String textAction,
   required Function(bool) onActionTap,
+  bool editable = false,
+  String hintText = '',
 }) {
   showGeneralDialog(
     context: context,
@@ -232,10 +237,35 @@ void showMyAnimatedDialog({
                 title,
                 textAlign: TextAlign.center,
               ),
-              content: Text(
-                content,
-                textAlign: TextAlign.center,
-              ),
+              content: editable
+                  ? Consumer<AuthenticationProvider>(
+                      builder: (context, authProvider, child) {
+                        return TextField(
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            hintText: hintText,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            switch (content) {
+                              case Constants.changeName:
+                                authProvider.setName(value);
+                                break;
+                              case Constants.changeDesc:
+                                authProvider.setDesc(value);
+                                break;
+                              default:
+                            }
+                          },
+                        );
+                      },
+                    )
+                  : Text(
+                      content,
+                      textAlign: TextAlign.center,
+                    ),
               actions: [
                 TextButton(
                   onPressed: () {

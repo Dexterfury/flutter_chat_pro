@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_chat_pro/main_screen/groups_screen.dart';
 import 'package:flutter_chat_pro/main_screen/people_screen.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/push_notification/notification_services.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
+
+    initCloudMessaging();
     super.initState();
   }
 
@@ -38,6 +42,80 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
+  }
+
+  // initialize cloud messaging
+  void initCloudMessaging() async {
+    // make sure widget is initialized before initializing cloud messaging
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      // 1. generate a new token
+      await context.read<AuthenticationProvider>().generateNewToken();
+
+      // 2. initialize firebase messaging
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        if (message.notification != null) {
+          NotificationServices.displayNotification(message);
+        }
+      });
+
+      // 3. setup onMessage handler
+      setupInteractedMessage();
+    });
+  }
+
+  // It is assumed that all messages contain a data field with the key 'type'
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (message.data[Constants.notificationType] ==
+        Constants.chatNotification) {
+      // navigate to chat screen here
+      Navigator.pushNamed(
+        context,
+        Constants.chatScreen,
+        arguments: {
+          Constants.contactUID: message.data[Constants.contactUID],
+          Constants.contactName: message.data[Constants.contactName],
+          Constants.contactImage: message.data[Constants.contactImage],
+          Constants.groupId: '',
+        },
+      );
+    }
+
+    if (message.data[Constants.notificationType] ==
+        Constants.groupChatNotification) {
+      // navigate to group chat screen here
+      //  context
+      //                       .read<GroupProvider>()
+      //                       .setGroupModel(groupModel: groupModel)
+      //                       .whenComplete(() {
+      //                     Navigator.pushNamed(
+      //                       context,
+      //                       Constants.chatScreen,
+      //                       arguments: {
+      //                         Constants.contactUID: groupModel.groupId,
+      //                         Constants.contactName: groupModel.groupName,
+      //                         Constants.contactImage: groupModel.groupImage,
+      //                         Constants.groupId: groupModel.groupId,
+      //                       },
+      //                     );
+      //                   });
+    }
   }
 
   @override

@@ -126,6 +126,24 @@ class GroupProvider extends ChangeNotifier {
     updateGroupDataInFireStore();
   }
 
+  // update image
+  void setGroupImage(String groupImage) {
+    _groupModel.groupImage = groupImage;
+    notifyListeners();
+  }
+
+  // set group name
+  void setGroupName(String groupName) {
+    _groupModel.groupName = groupName;
+    notifyListeners();
+  }
+
+  // set group description
+  void setGroupDescription(String groupDescription) {
+    _groupModel.groupDescription = groupDescription;
+    notifyListeners();
+  }
+
   Future<void> setGroupModel({required GroupModel groupModel}) async {
     _groupModel = groupModel;
     notifyListeners();

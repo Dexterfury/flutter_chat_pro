@@ -51,8 +51,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
               radius: 60,
               onPressed: () {
                 authentication.showBottomSheet(
-                  context: context,
-                );
+                    context: context, onSuccess: () {});
               },
             ),
             const SizedBox(height: 30),

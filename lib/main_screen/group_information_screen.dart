@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/add_members.dart';
 import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/exit_group_card.dart';
-import 'package:flutter_chat_pro/widgets/group_details_card.dart';
+import 'package:flutter_chat_pro/widgets/info_details_card.dart';
 import 'package:flutter_chat_pro/widgets/group_members_card.dart';
 import 'package:flutter_chat_pro/widgets/settings_and_media.dart';
 import 'package:provider/provider.dart';
@@ -27,58 +27,74 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
       builder: (context, groupProvider, child) {
         bool isAdmin = groupProvider.groupModel.adminsUIDs.contains(uid);
 
-        return Scaffold(
-          appBar: MyAppBar(
-            title: const Text('Group Information'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          body: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-            child: SingleChildScrollView(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                InfoDetailsCard(
-                  groupProvider: groupProvider,
-                  isAdmin: isAdmin,
+        return groupProvider.isSloading
+            ? const Scaffold(
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text('Saving Image, Please wait...')
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                SettingsAndMedia(
-                  groupProvider: groupProvider,
-                  isAdmin: isAdmin,
+              )
+            : Scaffold(
+                appBar: MyAppBar(
+                  title: const Text('Group Information'),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                const SizedBox(height: 20),
-                AddMembers(
-                  groupProvider: groupProvider,
-                  isAdmin: isAdmin,
-                  onPressed: () {
-                    // show  bottom sheet to add members
-                    showAddMembersBottomSheet(
-                      context: context,
-                      groupMembersUIDs: groupProvider.groupModel.membersUIDs,
-                    );
-                  },
+                body: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 20.0, horizontal: 10.0),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      InfoDetailsCard(
+                        groupProvider: groupProvider,
+                        isAdmin: isAdmin,
+                      ),
+                      const SizedBox(height: 10),
+                      SettingsAndMedia(
+                        groupProvider: groupProvider,
+                        isAdmin: isAdmin,
+                      ),
+                      const SizedBox(height: 20),
+                      AddMembers(
+                        groupProvider: groupProvider,
+                        isAdmin: isAdmin,
+                        onPressed: () {
+                          // show  bottom sheet to add members
+                          showAddMembersBottomSheet(
+                            context: context,
+                            groupMembersUIDs:
+                                groupProvider.groupModel.membersUIDs,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      isMember
+                          ? Column(
+                              children: [
+                                GoupMembersCard(
+                                  isAdmin: isAdmin,
+                                  groupProvider: groupProvider,
+                                ),
+                                const SizedBox(height: 10),
+                                ExitGroupCard(
+                                  uid: uid,
+                                )
+                              ],
+                            )
+                          : const SizedBox(),
+                    ],
+                  )),
                 ),
-                const SizedBox(height: 20),
-                isMember
-                    ? Column(
-                        children: [
-                          GoupMembersCard(
-                            isAdmin: isAdmin,
-                            groupProvider: groupProvider,
-                          ),
-                          const SizedBox(height: 10),
-                          ExitGroupCard(
-                            uid: uid,
-                          )
-                        ],
-                      )
-                    : const SizedBox(),
-              ],
-            )),
-          ),
-        );
+              );
       },
     );
   }

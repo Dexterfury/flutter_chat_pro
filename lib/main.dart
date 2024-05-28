@@ -1,5 +1,9 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/authentication/landing_screen.dart';
 import 'package:flutter_chat_pro/authentication/login_screen.dart';
@@ -17,13 +21,29 @@ import 'package:flutter_chat_pro/main_screen/profile_screen.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/push_notification/notification_services.dart';
 import 'package:provider/provider.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+
+  log("Handling a background message: ${message.messageId}");
+  log("Handling a background message: ${message.notification!.title}");
+  log("Handling a background message: ${message.notification!.body}");
+  log("Handling a background message: ${message.data}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  Platform.isAndroid
+      ? NotificationServices.createNotificationChannelAndInitialize()
+      : null;
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   runApp(
     MultiProvider(

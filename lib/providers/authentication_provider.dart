@@ -5,8 +5,11 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
@@ -49,6 +52,7 @@ class AuthenticationProvider extends ChangeNotifier {
 
   void showBottomSheet({
     required BuildContext context,
+    required Function() onSuccess,
   }) {
     showModalBottomSheet(
       context: context,
@@ -63,6 +67,7 @@ class AuthenticationProvider extends ChangeNotifier {
                   onSuccess: () {
                     // pop the bottom sheet and call the onSuccess function
                     Navigator.pop(context);
+                    onSuccess();
                   },
                   onError: (String error) {
                     showSnackBar(context, error);
@@ -79,6 +84,7 @@ class AuthenticationProvider extends ChangeNotifier {
                   onSuccess: () {
                     // pop the bottom sheet and call the onSuccess function
                     Navigator.pop(context);
+                    onSuccess();
                   },
                   onError: (String error) {
                     showSnackBar(context, error);
@@ -542,41 +548,191 @@ class AuthenticationProvider extends ChangeNotifier {
     return friendRequestsList;
   }
 
-  // update user image in firestore
-  Future<void> updateUserImage({
+  // update image
+  Future<String> updateImage({
     required bool isGroup,
-    required String uid,
-    File? fileImage,
+    required String id,
   }) async {
-    if (isGroup) {
-      String groupImage = '';
-      if (fileImage != null) {
-        // upload image to storage
-        String imageUrl = await storeFileToStorage(
-            file: fileImage, reference: '${Constants.groupImage}/$uid');
+    // check if file is not null
+    if (_finalFileImage == null) {
+      return 'Error';
+    }
+    ;
+    // set loading
+    _isLoading = true;
 
-        groupImage = imageUrl;
-      }
+    try {
+      // get the path
+      final String filePath = isGroup
+          ? '${Constants.groupImages}/$id'
+          : '${Constants.userImages}/$id';
 
-      await _firestore
-          .collection(Constants.groups)
-          .doc(uid)
-          .update({Constants.groupImage: groupImage});
-    } else {
-      if (fileImage != null) {
-        // upload image to storage
-        String imageUrl = await storeFileToStorage(
-            file: fileImage, reference: '${Constants.userImages}/$uid');
+      final String imageUrl = await storeFileToStorage(
+        file: _finalFileImage!,
+        reference: filePath,
+      );
 
+      if (isGroup) {
+        await _updateGroupImage(id, imageUrl);
+        // set file to null
+        _finalFileImage = null;
+        _isLoading = false;
+        notifyListeners();
+        return imageUrl;
+      } else {
+        await _updateUserImage(id, imageUrl);
         _userModel!.image = imageUrl;
+        // set file to null
+        _finalFileImage = null;
+        _isLoading = false;
+        // save user data to share preferences
         await saveUserDataToSharedPreferences();
         notifyListeners();
+        return imageUrl;
       }
-      await _firestore
-          .collection(Constants.users)
-          .doc(uid)
-          .update({Constants.image: _userModel!.image});
+    } catch (e) {
+      // set loading to false
+      _isLoading = false;
+      notifyListeners();
+      return 'Error';
     }
+  }
+
+  // update group image
+  Future<void> _updateGroupImage(
+    String id,
+    String imageUrl,
+  ) async {
+    await _firestore
+        .collection(Constants.groups)
+        .doc(id)
+        .update({Constants.groupImage: imageUrl});
+  }
+
+  // update user image
+  Future<void> _updateUserImage(
+    String id,
+    String imageUrl,
+  ) async {
+    await _firestore
+        .collection(Constants.users)
+        .doc(id)
+        .update({Constants.image: imageUrl});
+  }
+
+  String _newName = '';
+  String _newDesc = '';
+
+  // set name
+  void setName(String value) {
+    _newName = value;
+    notifyListeners();
+  }
+
+  // set description
+  void setDesc(String value) {
+    _newDesc = value;
+    notifyListeners();
+  }
+
+  // update name
+  Future<String> updateName({
+    required bool isGroup,
+    required String id,
+    required String oldName,
+  }) async {
+    if (_newName.isEmpty || _newName.length < 3 || _newName == oldName) {
+      return 'Invalid name.';
+    }
+
+    if (isGroup) {
+      await _updateGroupName(id, _newName);
+      final nameToReturn = _newName;
+      _newName = '';
+      notifyListeners();
+      return nameToReturn;
+    } else {
+      await _updateUserName(id, _newName);
+
+      _userModel!.name = _newName;
+      // save user data to share preferences
+      await saveUserDataToSharedPreferences();
+      _newName = '';
+      notifyListeners();
+      return _userModel!.name;
+    }
+  }
+
+  // update name
+  Future<String> updateStatus({
+    required bool isGroup,
+    required String id,
+    required String oldDesc,
+  }) async {
+    if (_newDesc.isEmpty || _newDesc.length < 3 || _newDesc == oldDesc) {
+      return 'Invalid description.';
+    }
+
+    if (isGroup) {
+      await _updateGroupDesc(id, _newDesc);
+      final descToReturn = _newDesc;
+      _newDesc = '';
+      notifyListeners();
+      return descToReturn;
+    } else {
+      await _updateAboutMe(id, _newDesc);
+
+      _userModel!.aboutMe = _newDesc;
+      // save user data to share preferences
+      await saveUserDataToSharedPreferences();
+      _newDesc = '';
+      notifyListeners();
+      return _userModel!.aboutMe;
+    }
+  }
+
+  // update groupName
+  Future<void> _updateGroupName(String id, String newName) async {
+    await _firestore.collection(Constants.groups).doc(id).update({
+      Constants.groupName: newName,
+    });
+  }
+
+  // update userName
+  Future<void> _updateUserName(String id, String newName) async {
+    await _firestore
+        .collection(Constants.users)
+        .doc(id)
+        .update({Constants.name: newName});
+  }
+
+  // update aboutMe
+  Future<void> _updateAboutMe(String id, String newDesc) async {
+    await _firestore
+        .collection(Constants.users)
+        .doc(id)
+        .update({Constants.aboutMe: newDesc});
+  }
+
+  // update group desc
+  Future<void> _updateGroupDesc(String id, String newDesc) async {
+    await _firestore
+        .collection(Constants.groups)
+        .doc(id)
+        .update({Constants.groupDescription: newDesc});
+  }
+
+  // generate a new token
+  Future<void> generateNewToken() async {
+    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String? token = await firebaseMessaging.getToken();
+
+    log('Token: $token');
+
+    // save token to firestore
+    _firestore.collection(Constants.users).doc(_userModel!.uid).update({
+      Constants.token: token,
+    });
   }
 
   Future logout() async {
