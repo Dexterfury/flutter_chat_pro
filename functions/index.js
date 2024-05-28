@@ -17,52 +17,66 @@
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase)
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+admin.initializeApp();
 
 const db = admin.firestore();
 
-exports.sendFriendRequestNotification = functions.firestore
-.document('users/{userId}')
-.onUpdate((change, context) => {
+// send friend request notification
+exports.sendFriendRequestNotification = functions.firestore.document(
+    "users/{userId}").onUpdated( async (change, context) => {
   const beforeData = change.before.data();
   const afterData = change.after.data();
+  const token = beforeData.token;
 
-  // friend request data
-  const beforeFriendRequest = beforeData.friendRequests || [];
-  const afterFriendRequest = afterData.friendRequests || [];
+  console.log("beforeData", beforeData);
+  console.log("afterData", afterData);
+  console.log("token", token);
 
-  if(beforeFriendRequest.length < afterFriendRequest.length){
-    const newFriendRequestId = afterFriendRequest[afterFriendRequest.length - 1];
+  // check friend requests data
+  const beforeFriendRequests = beforeData.friendRequestsUIDs || [];
+  const afterFriendRequests = afterData.friendRequestsUIDs || [];
 
-    // get the friend's data
-     db.collection('users').doc(newFriendRequestId).get().then(friendDoc => {
-      // check if document exist
-       if(!friendDoc.exists){
-        console.log("Document does not exist");
-        return null;
-       }
-       const friendData = friendDoc.data();
+  // check if friend request has been added
+  if (beforeFriendRequests.length < afterFriendRequests.length) {
+    // get the added friend request uid
+    const newFriendRequestUid = afterFriendRequests[
+        afterFriendRequests.length -1];
 
-       const message = {
-        data: {
-          notificationType: 'friendRequestNotification',
-        },
-        token: beforeData.token,
+    console.log("frienRequestUID", newFriendRequestUid);
 
-        notification: {
-          android_channel_id:'high_importance_channel',
-          title: 'Friend Request',
-          body: `${friendData.name} sent you a friend request`,
-          image: friendData.image,
-        }
+    const friendDoc = await db.collection(
+        "users").doc(newFriendRequestUid).get();
+    // chech if the user exists
+    if (!friendDoc.exists) {
+      context.logger.log(
+          `Friend request ${newFriendRequestUid} does not exist`);
+      return null;
+    }
 
-       }
-        return admin.messaging().send(message);
-     }).catch(error => {
-       console.log("Error sending notification", error);
-     })
+    const friendData = friendDoc.data();
+
+    const message = {
+      data: {
+        notificationType: "friendRequestNotification",
+      },
+      token: token,
+
+      notificationType: {
+        android_channel_id: "high_importance_channel",
+        title: "Friend Request",
+        body: `${friendData.name} sent you a friend request`,
+        imageUrl: friendData.image,
+      },
+    };
+    // send notification to the user
+    return admin.messaging().send(message).catch((error) => {
+      console.log("Error sending message", error);
+      return null;
+    }).finally(() => {
+      context.logger.log(`Friend request ${newFriendRequestUid} sent`);
+    });
   }
+  return null;
 });
-

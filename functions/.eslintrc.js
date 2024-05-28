@@ -14,12 +14,6 @@ module.exports = {
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
     "quotes": ["error", "double", {"allowTemplateLiterals": true}],
-    "no-unused-vars": ["warn", {
-      argsIgnorePattern: "^_",
-      args: "after-used",
-      ignoreRestSiblings: false,
-      vars: "all",
-    }],
   },
   overrides: [
     {
