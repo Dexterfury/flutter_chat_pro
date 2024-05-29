@@ -17,16 +17,17 @@ class NotificationServices {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    InitializationSettings initializationSettings =
-        const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    );
+    // InitializationSettings initializationSettings =
+    //     const InitializationSettings(
+    //   android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    // );
 
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    // flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   static displayNotification(RemoteMessage message) {
     RemoteNotification? notification = message.notification;
+    AndroidNotification? android = notification?.android;
 
     flutterLocalNotificationsPlugin.show(
         notification.hashCode,
@@ -38,6 +39,7 @@ class NotificationServices {
           channel.name, // Channel name.
           importance: Importance.max,
           playSound: true,
+          icon: android?.smallIcon, // Optional icon to use.
         )));
   }
 }

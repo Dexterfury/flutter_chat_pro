@@ -8,6 +8,7 @@ import 'package:flutter_chat_pro/main_screen/groups_screen.dart';
 import 'package:flutter_chat_pro/main_screen/people_screen.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/push_notification/navigation_controller.dart';
 import 'package:flutter_chat_pro/push_notification/notification_services.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:provider/provider.dart';
@@ -82,40 +83,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _handleMessage(RemoteMessage message) {
-    if (message.data[Constants.notificationType] ==
-        Constants.chatNotification) {
-      // navigate to chat screen here
-      Navigator.pushNamed(
-        context,
-        Constants.chatScreen,
-        arguments: {
-          Constants.contactUID: message.data[Constants.contactUID],
-          Constants.contactName: message.data[Constants.contactName],
-          Constants.contactImage: message.data[Constants.contactImage],
-          Constants.groupId: '',
-        },
-      );
-    }
-
-    if (message.data[Constants.notificationType] ==
-        Constants.groupChatNotification) {
-      // navigate to group chat screen here
-      //  context
-      //                       .read<GroupProvider>()
-      //                       .setGroupModel(groupModel: groupModel)
-      //                       .whenComplete(() {
-      //                     Navigator.pushNamed(
-      //                       context,
-      //                       Constants.chatScreen,
-      //                       arguments: {
-      //                         Constants.contactUID: groupModel.groupId,
-      //                         Constants.contactName: groupModel.groupName,
-      //                         Constants.contactImage: groupModel.groupImage,
-      //                         Constants.groupId: groupModel.groupId,
-      //                       },
-      //                     );
-      //                   });
-    }
+    navigationControler(context: context, message: message);
   }
 
   @override

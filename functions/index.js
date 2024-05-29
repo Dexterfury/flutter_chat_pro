@@ -7,16 +7,6 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-// const {onRequest} = require("firebase-functions/v2/https");
-// const logger = require("firebase-functions/logger");
-
-// // Create and deploy your first functions
-// // https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
@@ -25,58 +15,53 @@ const db = admin.firestore();
 
 // send friend request notification
 exports.sendFriendRequestNotification = functions.firestore.document(
-    "users/{userId}").onUpdated( async (change, context) => {
-  const beforeData = change.before.data();
-  const afterData = change.after.data();
-  const token = beforeData.token;
+  "users/{userId}").onUpdate( async (change, context) => {
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
 
-  console.log("beforeData", beforeData);
-  console.log("afterData", afterData);
-  console.log("token", token);
+    // friend request data
+    const beforeFriendRequest = beforeData.friendRequestsUIDs || [];
+    const afterFriendRequest = afterData.friendRequestsUIDs || [];
+    // check if friend request is added
+    if (beforeFriendRequest.length < afterFriendRequest.length) {
+      const newFriendRequestId = afterFriendRequest[afterFriendRequest.length -1];
 
-  // check friend requests data
-  const beforeFriendRequests = beforeData.friendRequestsUIDs || [];
-  const afterFriendRequests = afterData.friendRequestsUIDs || [];
+      // get user data from firestore
+      const friendDoc = await db.collection("users").doc(newFriendRequestId).get();
+      // check if user exists in firestore
+      if (!friendDoc.exists) {
+        console.log(`User ${newFriendRequestId} does not exist`);
+        return null;
+      }
+      const friendData = friendDoc.data();
+      console.log("User exits");
 
-  // check if friend request has been added
-  if (beforeFriendRequests.length < afterFriendRequests.length) {
-    // get the added friend request uid
-    const newFriendRequestUid = afterFriendRequests[
-        afterFriendRequests.length -1];
+      const message = {
+        data: {
+          notificationType: "friendRequestNotification",
+        },
+        token: afterData.token,
 
-    console.log("frienRequestUID", newFriendRequestUid);
-
-    const friendDoc = await db.collection(
-        "users").doc(newFriendRequestUid).get();
-    // chech if the user exists
-    if (!friendDoc.exists) {
-      context.logger.log(
-          `Friend request ${newFriendRequestUid} does not exist`);
-      return null;
+        notification: {
+          title: "New Friend Request",
+          body: `${friendData.name} sent you a friend request`,
+          image: friendData.image,
+        },
+        android: {
+          notification: {
+            channel_id: "high_importance_channel",
+        },
+      },
+         
+      };
+      return admin.messaging().send(message).catch((error) => {
+        console.log("Error sending message:", error);
+        return null;
+      }).finally(() => {
+        console.log(`Friend request notification sent to ${afterData.token}`);
+        return null;
+      });
     }
+    return null;
+  });
 
-    const friendData = friendDoc.data();
-
-    const message = {
-      data: {
-        notificationType: "friendRequestNotification",
-      },
-      token: token,
-
-      notificationType: {
-        android_channel_id: "high_importance_channel",
-        title: "Friend Request",
-        body: `${friendData.name} sent you a friend request`,
-        imageUrl: friendData.image,
-      },
-    };
-    // send notification to the user
-    return admin.messaging().send(message).catch((error) => {
-      console.log("Error sending message", error);
-      return null;
-    }).finally(() => {
-      context.logger.log(`Friend request ${newFriendRequestUid} sent`);
-    });
-  }
-  return null;
-});
