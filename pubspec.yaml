@@ -65,6 +65,7 @@ dependencies:
   flutter_chat_reactions: ^0.1.0
   firebase_messaging: ^14.9.3
   flutter_local_notifications: ^17.1.2
+  open_settings: ^2.0.2
 
 dev_dependencies:
   flutter_test:

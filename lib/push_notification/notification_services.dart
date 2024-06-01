@@ -1,33 +1,29 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_chat_pro/push_notification/notification_channels.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationServices {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static AndroidNotificationChannel channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    importance: Importance.max,
-  );
-
   static Future<void> createNotificationChannelAndInitialize() async {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    final androidImplementation =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
 
-    // InitializationSettings initializationSettings =
-    //     const InitializationSettings(
-    //   android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    // );
-
-    // flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    if (androidImplementation != null) {
+      await androidImplementation.createNotificationChannel(
+          NotificationChennels.highInportanceChannel);
+      await androidImplementation
+          .createNotificationChannel(NotificationChennels.lowInportanceChannel);
+    }
   }
 
   static displayNotification(RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = notification?.android;
+
+    String channelId = android?.channelId ?? 'default_channel';
 
     flutterLocalNotificationsPlugin.show(
         notification.hashCode,
@@ -35,11 +31,22 @@ class NotificationServices {
         notification?.body,
         NotificationDetails(
             android: AndroidNotificationDetails(
-          channel.id, // Channel id.
-          channel.name, // Channel name.
+          channelId, // Channel id.
+          findChannelName(channelId), // Channel name.
           importance: Importance.max,
           playSound: true,
           icon: android?.smallIcon, // Optional icon to use.
         )));
+  }
+
+  static String findChannelName(String channelId) {
+    switch (channelId) {
+      case 'high_importance_channel':
+        return NotificationChennels.highInportanceChannel.name;
+      case 'low_importance_channel':
+        return NotificationChennels.lowInportanceChannel.name;
+      default:
+        return NotificationChennels.highInportanceChannel.name;
+    }
   }
 }

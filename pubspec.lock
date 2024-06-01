@@ -728,6 +728,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  open_settings:
+    dependency: "direct main"
+    description:
+      name: open_settings
+      sha256: ceb716dc476352aecb939805b6fa6a593168a5ed1abfe3caa022b6b1715e94ae
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   path:
     dependency: transitive
     description:

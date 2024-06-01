@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_chat_pro/widgets/info_details_card.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:open_settings/open_settings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -136,6 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 iconContainerColor: Colors.red,
                                 onTap: () {
                                   // navigate to account settings
+                                  OpenSettings.openAppNotificationSetting();
                                 },
                               ),
                             ],
