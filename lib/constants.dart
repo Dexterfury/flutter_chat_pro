@@ -40,6 +40,7 @@ class Constants {
   static const String contactName = 'contactName';
   static const String contactImage = 'contactImage';
   static const String groupId = 'groupId';
+  static const String groupModel = 'groupModel';
 
   static const String senderUID = 'senderUID';
   static const String senderName = 'senderName';
@@ -90,4 +91,6 @@ class Constants {
   static const String groupChatNotification = 'groupChatNotification';
   static const String chatNotification = 'chatNotification';
   static const String friendRequestNotification = 'friendRequestNotification';
+  static const String requestReplyNotification = 'requestReplyNotification';
+  static const String groupRequestNotification = 'groupRequestNotification';
 }

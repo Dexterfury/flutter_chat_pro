@@ -54,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // get user data from arguments
     final uid = ModalRoute.of(context)!.settings.arguments as String;
     final authProvider = context.watch<AuthenticationProvider>();
+    bool isMyProfile = uid == authProvider.uid;
     return authProvider.isLoading
         ? const Scaffold(
             body: Center(
@@ -105,144 +106,159 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           userModel: userModel,
                         ),
                         const SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            'Settings',
-                            style: GoogleFonts.openSans(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Card(
-                          child: Column(
-                            children: [
-                              SettingsListTile(
-                                title: 'Account',
-                                icon: Icons.person,
-                                iconContainerColor: Colors.deepPurple,
-                                onTap: () {
-                                  // navigate to account settings
-                                },
-                              ),
-                              SettingsListTile(
-                                title: 'My Media',
-                                icon: Icons.image,
-                                iconContainerColor: Colors.green,
-                                onTap: () {
-                                  // navigate to account settings
-                                },
-                              ),
-                              SettingsListTile(
-                                title: 'Notifications',
-                                icon: Icons.notifications,
-                                iconContainerColor: Colors.red,
-                                onTap: () {
-                                  // navigate to account settings
-                                  OpenSettings.openAppNotificationSetting();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Card(
-                          child: Column(
-                            children: [
-                              SettingsListTile(
-                                title: 'Help',
-                                icon: Icons.help,
-                                iconContainerColor: Colors.yellow,
-                                onTap: () {
-                                  // navigate to account settings
-                                },
-                              ),
-                              SettingsListTile(
-                                title: 'Share',
-                                icon: Icons.share,
-                                iconContainerColor: Colors.blue,
-                                onTap: () {
-                                  // navigate to account settings
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Card(
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.deepPurple,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(
-                                  isDarkMode
-                                      ? Icons.nightlight_round
-                                      : Icons.wb_sunny_rounded,
-                                  color:
-                                      isDarkMode ? Colors.black : Colors.white,
-                                ),
-                              ),
-                            ),
-                            title: const Text('Change theme'),
-                            trailing: Switch(
-                                value: isDarkMode,
-                                onChanged: (value) {
-                                  // set the isDarkMode to the value
-                                  setState(() {
-                                    isDarkMode = value;
-                                  });
-                                  // check if the value is true
-                                  if (value) {
-                                    // set the theme mode to dark
-                                    AdaptiveTheme.of(context).setDark();
-                                  } else {
-                                    // set the theme mode to light
-                                    AdaptiveTheme.of(context).setLight();
-                                  }
-                                }),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Card(
-                          child: Column(
-                            children: [
-                              SettingsListTile(
-                                title: 'Logout',
-                                icon: Icons.logout_outlined,
-                                iconContainerColor: Colors.red,
-                                onTap: () {
-                                  showMyAnimatedDialog(
-                                    context: context,
-                                    title: 'Logout',
-                                    content: 'Are you sure you want to logout?',
-                                    textAction: 'Logout',
-                                    onActionTap: (value) {
-                                      if (value) {
-                                        // logout
-                                        context
-                                            .read<AuthenticationProvider>()
-                                            .logout()
-                                            .whenComplete(() {
-                                          Navigator.pop(context);
-                                          Navigator.pushNamedAndRemoveUntil(
-                                            context,
-                                            Constants.loginScreen,
-                                            (route) => false,
-                                          );
-                                        });
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                        isMyProfile
+                            ? Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      'Settings',
+                                      style: GoogleFonts.openSans(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Card(
+                                    child: Column(
+                                      children: [
+                                        SettingsListTile(
+                                          title: 'Account',
+                                          icon: Icons.person,
+                                          iconContainerColor: Colors.deepPurple,
+                                          onTap: () {
+                                            // navigate to account settings
+                                          },
+                                        ),
+                                        SettingsListTile(
+                                          title: 'My Media',
+                                          icon: Icons.image,
+                                          iconContainerColor: Colors.green,
+                                          onTap: () {
+                                            // navigate to account settings
+                                          },
+                                        ),
+                                        SettingsListTile(
+                                          title: 'Notifications',
+                                          icon: Icons.notifications,
+                                          iconContainerColor: Colors.red,
+                                          onTap: () {
+                                            // navigate to account settings
+                                            OpenSettings
+                                                .openAppNotificationSetting();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Card(
+                                    child: Column(
+                                      children: [
+                                        SettingsListTile(
+                                          title: 'Help',
+                                          icon: Icons.help,
+                                          iconContainerColor: Colors.yellow,
+                                          onTap: () {
+                                            // navigate to account settings
+                                          },
+                                        ),
+                                        SettingsListTile(
+                                          title: 'Share',
+                                          icon: Icons.share,
+                                          iconContainerColor: Colors.blue,
+                                          onTap: () {
+                                            // navigate to account settings
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Card(
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.deepPurple,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Icon(
+                                            isDarkMode
+                                                ? Icons.nightlight_round
+                                                : Icons.wb_sunny_rounded,
+                                            color: isDarkMode
+                                                ? Colors.black
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      title: const Text('Change theme'),
+                                      trailing: Switch(
+                                          value: isDarkMode,
+                                          onChanged: (value) {
+                                            // set the isDarkMode to the value
+                                            setState(() {
+                                              isDarkMode = value;
+                                            });
+                                            // check if the value is true
+                                            if (value) {
+                                              // set the theme mode to dark
+                                              AdaptiveTheme.of(context)
+                                                  .setDark();
+                                            } else {
+                                              // set the theme mode to light
+                                              AdaptiveTheme.of(context)
+                                                  .setLight();
+                                            }
+                                          }),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Card(
+                                    child: Column(
+                                      children: [
+                                        SettingsListTile(
+                                          title: 'Logout',
+                                          icon: Icons.logout_outlined,
+                                          iconContainerColor: Colors.red,
+                                          onTap: () {
+                                            showMyAnimatedDialog(
+                                              context: context,
+                                              title: 'Logout',
+                                              content:
+                                                  'Are you sure you want to logout?',
+                                              textAction: 'Logout',
+                                              onActionTap: (value) {
+                                                if (value) {
+                                                  // logout
+                                                  context
+                                                      .read<
+                                                          AuthenticationProvider>()
+                                                      .logout()
+                                                      .whenComplete(() {
+                                                    Navigator.pop(context);
+                                                    Navigator
+                                                        .pushNamedAndRemoveUntil(
+                                                      context,
+                                                      Constants.loginScreen,
+                                                      (route) => false,
+                                                    );
+                                                  });
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox(),
                       ],
                     ),
                   ),
