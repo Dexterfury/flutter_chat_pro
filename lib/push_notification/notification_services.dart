@@ -25,11 +25,10 @@ class NotificationServices {
       iOS: initializationSettingsIOS,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveBackgroundNotificationResponse: (paylod) {
-      // handle notification taps here
-      handleMessage(paylod);
-    });
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveBackgroundNotificationResponse: handleMessage,
+    );
 
     final androidImplementation =
         flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<

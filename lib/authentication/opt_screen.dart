@@ -64,122 +64,124 @@ class _OTPScreenState extends State<OTPScreen> {
               horizontal: 20.0,
               vertical: 20.0,
             ),
-            child: Column(
-              children: [
-                const SizedBox(height: 50),
-                Text(
-                  'Verification',
-                  style: GoogleFonts.openSans(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 50),
-                Text(
-                  'Enter the 6-digit code sent the number',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.openSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  phoneNumber,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.openSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  height: 68,
-                  child: Pinput(
-                    length: 6,
-                    controller: controller,
-                    focusNode: focusNode,
-                    defaultPinTheme: defaultPinTheme,
-                    onCompleted: (pin) {
-                      setState(() {
-                        otpCode = pin;
-                      });
-                      // verify otp code
-                      verifyOTPCode(
-                        verificationId: verificationId,
-                        otpCode: otpCode!,
-                      );
-                    },
-                    focusedPinTheme: defaultPinTheme.copyWith(
-                      height: 68,
-                      width: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey.shade200,
-                        border: Border.all(
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ),
-                    errorPinTheme: defaultPinTheme.copyWith(
-                      height: 68,
-                      width: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey.shade200,
-                        border: Border.all(
-                          color: Colors.red,
-                        ),
-                      ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 50),
+                  Text(
+                    'Verification',
+                    style: GoogleFonts.openSans(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                authProvider.isLoading
-                    ? const CircularProgressIndicator()
-                    : const SizedBox.shrink(),
-                authProvider.isSuccessful
-                    ? Container(
-                        height: 50,
-                        width: 50,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.done,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-                authProvider.isLoading
-                    ? const SizedBox.shrink()
-                    : Text(
-                        'Didn\'t receive the code?',
-                        style: GoogleFonts.openSans(fontSize: 16),
-                      ),
-                const SizedBox(height: 10),
-                authProvider.isLoading
-                    ? const SizedBox.shrink()
-                    : TextButton(
-                        onPressed: authProvider.secondsRemaing == 0
-                            ? () {
-                                // reset the code to send again
-                                authProvider.resendCode(
-                                  context: context,
-                                  phone: phoneNumber,
-                                );
-                              }
-                            : null,
-                        child: Text(
-                          'Resend Code',
-                          style: GoogleFonts.openSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                  const SizedBox(height: 50),
+                  Text(
+                    'Enter the 6-digit code sent the number',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.openSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    phoneNumber,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.openSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    height: 68,
+                    child: Pinput(
+                      length: 6,
+                      controller: controller,
+                      focusNode: focusNode,
+                      defaultPinTheme: defaultPinTheme,
+                      onCompleted: (pin) {
+                        setState(() {
+                          otpCode = pin;
+                        });
+                        // verify otp code
+                        verifyOTPCode(
+                          verificationId: verificationId,
+                          otpCode: otpCode!,
+                        );
+                      },
+                      focusedPinTheme: defaultPinTheme.copyWith(
+                        height: 68,
+                        width: 64,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey.shade200,
+                          border: Border.all(
+                            color: Colors.deepPurple,
                           ),
-                        )),
-              ],
+                        ),
+                      ),
+                      errorPinTheme: defaultPinTheme.copyWith(
+                        height: 68,
+                        width: 64,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey.shade200,
+                          border: Border.all(
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  authProvider.isLoading
+                      ? const CircularProgressIndicator()
+                      : const SizedBox.shrink(),
+                  authProvider.isSuccessful
+                      ? Container(
+                          height: 50,
+                          width: 50,
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.done,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  authProvider.isLoading
+                      ? const SizedBox.shrink()
+                      : Text(
+                          'Didn\'t receive the code?',
+                          style: GoogleFonts.openSans(fontSize: 16),
+                        ),
+                  const SizedBox(height: 10),
+                  authProvider.isLoading
+                      ? const SizedBox.shrink()
+                      : TextButton(
+                          onPressed: authProvider.secondsRemaing == 0
+                              ? () {
+                                  // reset the code to send again
+                                  authProvider.resendCode(
+                                    context: context,
+                                    phone: phoneNumber,
+                                  );
+                                }
+                              : null,
+                          child: Text(
+                            'Resend Code',
+                            style: GoogleFonts.openSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )),
+                ],
+              ),
             ),
           ),
         ),
