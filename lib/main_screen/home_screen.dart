@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -94,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       // 2. initialize firebase messaging
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        log('message HOME : $message');
         if (message.notification != null) {
           NotificationServices.displayNotification(message);
         }

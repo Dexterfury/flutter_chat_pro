@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_chat_pro/push_notification/navigation_controller.dart';
 import 'package:flutter_chat_pro/push_notification/notification_channels.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -27,7 +29,9 @@ class NotificationServices {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveBackgroundNotificationResponse: handleMessage,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse:
+          onDidReceiveBackgroundNotificationResponse,
     );
 
     final androidImplementation =
@@ -53,8 +57,21 @@ class NotificationServices {
     log('payload: $payload');
   }
 
-  static void handleMessage(NotificationResponse paylod) {
-    log('Paylod : $paylod');
+  static void onDidReceiveNotificationResponse(
+      NotificationResponse notificationRespons) {
+    log('onDidReceiveNotificationResponse : $notificationRespons');
+    final payload = notificationRespons.payload;
+    if (payload != null) {
+      // convert payload to remoteMessage and handle interaction
+      final message = RemoteMessage.fromMap(jsonDecode(payload));
+      log('message: $message');
+      //navigationControler(context: context, message: message);
+    }
+  }
+
+  static void onDidReceiveBackgroundNotificationResponse(
+      NotificationResponse notificationRespons) {
+    log('BackgroundPayload : $notificationRespons');
   }
 
   static displayNotification(RemoteMessage message) {
@@ -83,6 +100,7 @@ class NotificationServices {
           presentAlert: true,
         ),
       ),
+      payload: jsonEncode(message.toMap()),
     );
   }
 
