@@ -26,11 +26,13 @@ import 'package:provider/provider.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
 
-  log("Handling a background message: ${message.messageId}");
-  log("Handling a background message: ${message.notification!.title}");
-  log("Handling a background message: ${message.notification!.body}");
-  log("Handling a background message: ${message.data}");
+  // log("Handling a background message: ${message.messageId}");
+  // log("Handling a background message: ${message.notification!.title}");
+  // log("Handling a background message: ${message.notification!.body}");
+  // log("Handling a background message: ${message.data}");
 }
+
+//final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

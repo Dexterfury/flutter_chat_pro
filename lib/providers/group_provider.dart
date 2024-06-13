@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -145,6 +146,7 @@ class GroupProvider extends ChangeNotifier {
   }
 
   Future<void> setGroupModel({required GroupModel groupModel}) async {
+    log('groupChat Provider: ${groupModel.groupName}');
     _groupModel = groupModel;
     notifyListeners();
   }

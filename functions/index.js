@@ -343,7 +343,7 @@ exports.sendFriendRequestNotification = functions.firestore.document(
 
        // fech default image url if senderImage is empty
      const groupData = await db.collection('groups').doc(groupId).get();
-     const groupName = groupData.groupName;
+     const groupName = groupData.data().groupName;
      let groupImage = groupData.data().groupImage;
      if(!groupImage) {
       // get the default image url from storage
@@ -351,6 +351,8 @@ exports.sendFriendRequestNotification = functions.firestore.document(
       const defaultImageUrl = 'https://firebasestorage.googleapis.com/v0/b/flutterchatpro-7ee3f.appspot.com/o/defaultImages%2Fuser_icon.png?alt=media&token=6359ee38-6230-466f-b8d7-080347cea1dc';
       groupImage = defaultImageUrl;
      }
+
+     console.log("GroupName@@@@@@@@@@@", groupName);
 
      const message = {
       data: {
@@ -380,8 +382,62 @@ exports.sendFriendRequestNotification = functions.firestore.document(
       return null;
     });
 
+    });
 
+    // new created group notification
+    exports.newGroupNotification = functions.firestore
+    .document('groups/{groupId}')
+    .onCreate( async (snapshot, context) => {
+      const groupData = snapshot.data();
+      const creatorUID = groupData.creatorUID;
+      let groupImage = groupData.groupImage;
+     if(!groupImage) {
+      // get the default image url from storage
+      //const defaultImageUrl = await storageRef.child('defaultImages/user_icon.png').getDownloadURL();
+      const defaultImageUrl = 'https://firebasestorage.googleapis.com/v0/b/flutterchatpro-7ee3f.appspot.com/o/defaultImages%2Fuser_icon.png?alt=media&token=6359ee38-6230-466f-b8d7-080347cea1dc';
+      groupImage = defaultImageUrl;
+     }
+      const groupId = context.params.groupId;
+      
 
+      const membersTokens = await getGroupTokens(groupId, false, creatorUID);
+
+      if(membersTokens.length === 0) {
+        return null;
+       }
+
+        // fech group creator's data
+     const creatorData = await db.collection('users').doc(creatorUID).get();
+     const creatorName = creatorData.data().name;
+     
+
+     const message = {
+      data: {
+        notificationType: "groupChatNotification",
+        groupModel: JSON.stringify(groupData),
+      },
+      tokens: membersTokens,
+
+      notification: {
+        title: `You've been added to a new group`,
+        body: `${creatorName} has created a new group`,
+        image: groupImage,
+      },
+      android: {
+        notification: {
+          channel_id: "high_importance_channel",
+      },
+    },
+       
+    };
+
+    return admin.messaging().sendEachForMulticast(message).catch((error) => {
+      console.log("Error sending message", error);
+      return null;
+    }).finally(() => {
+      log("Message sent to ", groupId);
+      return null;
+    });
 
     });
 
