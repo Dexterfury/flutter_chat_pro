@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
@@ -177,7 +174,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   const SizedBox(height: 10),
                                   Card(
                                     child: ListTile(
-                                      contentPadding: EdgeInsets.zero,
+                                      contentPadding: const EdgeInsets.only(
+                                        // added padding for the list tile
+                                        left: 8.0,
+                                        right: 8.0,
+                                      ),
                                       leading: Container(
                                         decoration: BoxDecoration(
                                           color: Colors.deepPurple,

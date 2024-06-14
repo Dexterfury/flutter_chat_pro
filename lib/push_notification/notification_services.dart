@@ -75,6 +75,7 @@ class NotificationServices {
   }
 
   static displayNotification(RemoteMessage message) {
+    log('display notification: $message');
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = notification?.android;
     AppleNotification? apple = notification?.apple;

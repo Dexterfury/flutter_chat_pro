@@ -957,7 +957,7 @@ PODS:
   - cached_video_player (0.0.2):
     - Flutter
     - KTVHTTPCache (~> 2.0.0)
-  - cloud_firestore (5.0.0):
+  - cloud_firestore (5.0.1):
     - Firebase/Firestore (= 10.27.0)
     - firebase_core
     - Flutter
@@ -978,18 +978,18 @@ PODS:
   - Firebase/Storage (10.27.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.27.0)
-  - firebase_auth (5.0.0):
+  - firebase_auth (5.1.0):
     - Firebase/Auth (= 10.27.0)
     - firebase_core
     - Flutter
-  - firebase_core (3.0.0):
+  - firebase_core (3.1.0):
     - Firebase/CoreOnly (= 10.27.0)
     - Flutter
-  - firebase_messaging (15.0.0):
+  - firebase_messaging (15.0.1):
     - Firebase/Messaging (= 10.27.0)
     - firebase_core
     - Flutter
-  - firebase_storage (12.0.0):
+  - firebase_storage (12.0.1):
     - Firebase/Storage (= 10.27.0)
     - firebase_core
     - Flutter
@@ -1053,6 +1053,8 @@ PODS:
     - GoogleUtilities/Environment (~> 7.12)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - Flutter (1.0.0)
+  - flutter_app_badger (1.3.0):
+    - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - flutter_sound_record (0.0.1):
@@ -1207,6 +1209,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
+  - flutter_app_badger (from `.symlinks/plugins/flutter_app_badger/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_sound_record (from `.symlinks/plugins/flutter_sound_record/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
@@ -1267,6 +1270,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
+  flutter_app_badger:
+    :path: ".symlinks/plugins/flutter_app_badger/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_sound_record:
@@ -1291,14 +1296,14 @@ SPEC CHECKSUMS:
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
   cached_video_player: 9f225ed1c46bda0fe287b8288742329d441e2cc5
-  cloud_firestore: 8cbdffc6eec66f2c2e67f19e4c6f9a872c222d19
+  cloud_firestore: 33319d8646cb250b3385e5fea751bd36232561b5
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   emoji_picker_flutter: fe2e6151c5b548e975d546e6eeb567daf0962a58
   Firebase: 26b040b20866a55f55eb3611b9fcf3ae64816b86
-  firebase_auth: 17ce83d25a062b2a594e5dfce91a4ad36e3739d5
-  firebase_core: 5926464bbb028fef87d2443369b73ada2a8a3608
-  firebase_messaging: 17bc029302b3342daa1c5905a1ee4258bcf47572
-  firebase_storage: ff66671828d524fc9e36f30cd7ed1909036324c7
+  firebase_auth: fd0c6e0ea74d07460c762e05e04334364e84414b
+  firebase_core: 483cfad66d24d8f3c233f31db4263830c625c909
+  firebase_messaging: e60c0694699d8a2e56a319e043709583f6544123
+  firebase_storage: b968b216552ca4948120f8d3b54585cb854d20cf
   FirebaseAppCheckInterop: 0dd062c9926a76332ca5711dbed6f1a9ac540b54
   FirebaseAuth: 77a012b7e08042bf44d0db835ca2e86e6ca7bbd3
   FirebaseAuthInterop: 0344acef098654eaf59f6add4c93254349bc5de4
@@ -1312,6 +1317,7 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: a03fe7a59ee646fef71099a887f774fe25d745b8
   FirebaseStorage: 255526c3d04c49874d7a5e3886964a79f77d6f33
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_app_badger: b87fc231847b03b92ce1412aa351842e7e97932f
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   flutter_sound_record: fa9800029599bccfaa8be22cc372550a5fa505ac
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a

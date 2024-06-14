@@ -172,11 +172,17 @@ class InfoDetailsCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          profileName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width:
+                              150, // editted this line to limit the width of the name text
+                          child: FittedBox(
+                            child: Text(
+                              profileName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(

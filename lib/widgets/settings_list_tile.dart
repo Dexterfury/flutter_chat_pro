@@ -21,7 +21,11 @@ class SettingsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      // added padding
+      contentPadding: const EdgeInsets.only(
+        left: 8.0,
+        right: 8.0,
+      ),
       leading: Container(
         decoration: BoxDecoration(
           color: iconContainerColor,
@@ -44,7 +48,7 @@ class SettingsListTile extends StatelessWidget {
             )
           : null,
       trailing: Icon(
-        Platform.isAndroid ? Icons.arrow_forward : Icons.arrow_back_ios_new,
+        Platform.isAndroid ? Icons.arrow_forward : Icons.arrow_forward_ios,
       ),
       onTap: onTap,
     );

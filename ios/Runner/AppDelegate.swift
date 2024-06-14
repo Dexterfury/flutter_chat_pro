@@ -18,6 +18,7 @@ import flutter_local_notifications
   FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
     GeneratedPluginRegistrant.register(with: registry)
   }
+  
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
