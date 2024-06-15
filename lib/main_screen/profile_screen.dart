@@ -233,7 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               content:
                                                   'Are you sure you want to logout?',
                                               textAction: 'Logout',
-                                              onActionTap: (value) {
+                                              onActionTap:
+                                                  (value, updatedText) {
                                                 if (value) {
                                                   // logout
                                                   context

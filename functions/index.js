@@ -352,8 +352,6 @@ exports.sendFriendRequestNotification = functions.firestore.document(
       groupImage = defaultImageUrl;
      }
 
-     console.log("GroupName@@@@@@@@@@@", groupName);
-
      const message = {
       data: {
         notificationType: "groupChatNotification",

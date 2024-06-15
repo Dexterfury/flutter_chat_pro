@@ -57,12 +57,13 @@ class InfoDetailsCard extends StatelessWidget {
                 title: title,
                 content: content,
                 textAction: "Change",
-                onActionTap: (value) async {
+                onActionTap: (value, updatedText) async {
                   if (value) {
                     if (content == Constants.changeName) {
                       final name = await authProvider.updateName(
                         isGroup: isGroup,
                         id: isGroup ? groupProvider!.groupModel.groupId : uid,
+                        newName: updatedText,
                         oldName: profileName,
                       );
                       if (isGroup) {
@@ -73,6 +74,7 @@ class InfoDetailsCard extends StatelessWidget {
                       final desc = await authProvider.updateStatus(
                         isGroup: isGroup,
                         id: isGroup ? groupProvider!.groupModel.groupId : uid,
+                        newDesc: updatedText,
                         oldDesc: aboutMe,
                       );
                       if (isGroup) {
@@ -104,18 +106,20 @@ class InfoDetailsCard extends StatelessWidget {
               title: title,
               content: content,
               textAction: "Change",
-              onActionTap: (value) {
+              onActionTap: (value, updatedText) {
                 if (value) {
                   if (content == Constants.changeName) {
                     authProvider.updateName(
                       isGroup: isGroup,
                       id: isGroup ? groupProvider!.groupModel.groupId : uid,
+                      newName: updatedText,
                       oldName: profileName,
                     );
                   } else {
                     authProvider.updateStatus(
                       isGroup: isGroup,
                       id: isGroup ? groupProvider!.groupModel.groupId : uid,
+                      newDesc: updatedText,
                       oldDesc: aboutMe,
                     );
                   }
@@ -176,6 +180,7 @@ class InfoDetailsCard extends StatelessWidget {
                           width:
                               150, // editted this line to limit the width of the name text
                           child: FittedBox(
+                            fit: BoxFit.scaleDown,
                             child: Text(
                               profileName,
                               style: const TextStyle(

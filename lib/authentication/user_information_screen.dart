@@ -57,6 +57,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
             const SizedBox(height: 30),
             TextField(
               controller: _nameController,
+              maxLength: 20,
               decoration: const InputDecoration(
                 hintText: 'Enter your name',
                 labelText: 'Enter your name',

@@ -93,7 +93,7 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                             content:
                                 'You need to request to join this group, before you can view the group content',
                             textAction: 'Request to join',
-                            onActionTap: (value) async {
+                            onActionTap: (value, updatedText) async {
                               // send request to join group
                               if (value) {
                                 await context

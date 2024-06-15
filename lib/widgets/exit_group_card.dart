@@ -29,7 +29,7 @@ class ExitGroupCard extends StatelessWidget {
               title: 'Exit Group',
               content: 'Are you sure you want to exit the group?',
               textAction: 'Exit',
-              onActionTap: (value) async {
+              onActionTap: (value, updatedText) async {
                 if (value) {
                   // exit group
                   final groupProvider = context.read<GroupProvider>();

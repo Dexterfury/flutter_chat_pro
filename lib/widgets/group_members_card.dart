@@ -73,7 +73,7 @@ class _GoupMembersCardState extends State<GoupMembersCard> {
                                 content:
                                     'Are you sure you want to remove ${member.name} from the group?',
                                 textAction: 'Remove',
-                                onActionTap: (value) async {
+                                onActionTap: (value, updatedText) async {
                                   if (value) {
                                     //remove member from group
                                     await widget.groupProvider

@@ -620,44 +620,30 @@ class AuthenticationProvider extends ChangeNotifier {
         .update({Constants.image: imageUrl});
   }
 
-  String _newName = '';
-  String _newDesc = '';
-
-  // set name
-  void setName(String value) {
-    _newName = value;
-    notifyListeners();
-  }
-
-  // set description
-  void setDesc(String value) {
-    _newDesc = value;
-    notifyListeners();
-  }
-
   // update name
   Future<String> updateName({
     required bool isGroup,
     required String id,
+    required String newName,
     required String oldName,
   }) async {
-    if (_newName.isEmpty || _newName.length < 3 || _newName == oldName) {
+    if (newName.isEmpty || newName.length < 3 || newName == oldName) {
       return 'Invalid name.';
     }
 
     if (isGroup) {
-      await _updateGroupName(id, _newName);
-      final nameToReturn = _newName;
-      _newName = '';
+      await _updateGroupName(id, newName);
+      final nameToReturn = newName;
+      newName = '';
       notifyListeners();
       return nameToReturn;
     } else {
-      await _updateUserName(id, _newName);
+      await _updateUserName(id, newName);
 
-      _userModel!.name = _newName;
+      _userModel!.name = newName;
       // save user data to share preferences
       await saveUserDataToSharedPreferences();
-      _newName = '';
+      newName = '';
       notifyListeners();
       return _userModel!.name;
     }
@@ -667,25 +653,26 @@ class AuthenticationProvider extends ChangeNotifier {
   Future<String> updateStatus({
     required bool isGroup,
     required String id,
+    required String newDesc,
     required String oldDesc,
   }) async {
-    if (_newDesc.isEmpty || _newDesc.length < 3 || _newDesc == oldDesc) {
+    if (newDesc.isEmpty || newDesc.length < 3 || newDesc == oldDesc) {
       return 'Invalid description.';
     }
 
     if (isGroup) {
-      await _updateGroupDesc(id, _newDesc);
-      final descToReturn = _newDesc;
-      _newDesc = '';
+      await _updateGroupDesc(id, newDesc);
+      final descToReturn = newDesc;
+      newDesc = '';
       notifyListeners();
       return descToReturn;
     } else {
-      await _updateAboutMe(id, _newDesc);
+      await _updateAboutMe(id, newDesc);
 
-      _userModel!.aboutMe = _newDesc;
+      _userModel!.aboutMe = newDesc;
       // save user data to share preferences
       await saveUserDataToSharedPreferences();
-      _newDesc = '';
+      newDesc = '';
       notifyListeners();
       return _userModel!.aboutMe;
     }

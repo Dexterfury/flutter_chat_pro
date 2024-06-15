@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
@@ -78,6 +80,18 @@ class _GroupSettingsScreenState extends State<GroupSettingsScreen> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Group Settings'),
+          leading: IconButton(
+            onPressed: () {
+              context
+                  .read<GroupProvider>()
+                  .removeTempLists(isAdmins: true)
+                  .whenComplete(() {
+                Navigator.pop(context);
+              });
+            },
+            icon:
+                Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back),
+          ),
         ),
         body: Consumer<GroupProvider>(
           builder: (context, groupProvider, child) {
@@ -152,6 +166,7 @@ class _GroupSettingsScreenState extends State<GroupSettingsScreen> {
                             if (groupProvider.groupMembersList.isEmpty) {
                               return;
                             }
+                            groupProvider.setEmptyTemps();
                             // show bottom sheet to select admins
                             showBottomSheet(
                                 context: context,
@@ -176,7 +191,11 @@ class _GroupSettingsScreenState extends State<GroupSettingsScreen> {
                                               ),
                                               TextButton(
                                                 onPressed: () {
-                                                  Navigator.pop(context);
+                                                  groupProvider
+                                                      .updateGroupDataInFireStoreIfNeeded()
+                                                      .whenComplete(() {
+                                                    Navigator.pop(context);
+                                                  });
                                                 },
                                                 child: const Text(
                                                   'Done',

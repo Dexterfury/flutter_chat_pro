@@ -33,7 +33,7 @@ class GroupStatusWidget extends StatelessWidget {
                     content:
                         'Are you sure you want to change the group type to ${groupProvider.groupModel.isPrivate ? 'Public' : 'Private'}?',
                     textAction: 'Change',
-                    onActionTap: (value) {
+                    onActionTap: (value, updatedText) {
                       if (value) {
                         // change group type
                         groupProvider.changeGroupType();
