@@ -68,6 +68,7 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
                         groupProvider: groupProvider,
                         isAdmin: isAdmin,
                         onPressed: () {
+                          groupProvider.setEmptyTemps();
                           // show  bottom sheet to add members
                           showAddMembersBottomSheet(
                             context: context,

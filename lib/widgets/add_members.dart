@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddMembers extends StatelessWidget {
   const AddMembers({
@@ -18,9 +19,9 @@ class AddMembers extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          '2 Members',
-          style: TextStyle(
+        Text(
+          '${groupProvider.groupMembersList.length} members',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
