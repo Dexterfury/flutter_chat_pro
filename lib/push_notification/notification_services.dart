@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_chat_pro/push_notification/navigation_controller.dart';
 import 'package:flutter_chat_pro/push_notification/notification_channels.dart';
+import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationServices {
@@ -65,7 +66,8 @@ class NotificationServices {
       // convert payload to remoteMessage and handle interaction
       final message = RemoteMessage.fromMap(jsonDecode(payload));
       log('message: $message');
-      //navigationControler(context: context, message: message);
+      navigationControler(
+          context: navigatorKey.currentState!.context, message: message);
     }
   }
 

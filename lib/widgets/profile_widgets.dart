@@ -78,18 +78,21 @@ class ProfileStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FriendRequestButton(
-          currentUser: currentUser,
-          userModel: userModel,
-        ),
-        const SizedBox(height: 10),
-        FriendsButton(
-          currentUser: currentUser,
-          userModel: userModel,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+      child: Row(
+        children: [
+          FriendsButton(
+            currentUser: currentUser,
+            userModel: userModel,
+          ),
+          const SizedBox(width: 10),
+          FriendRequestButton(
+            currentUser: currentUser,
+            userModel: userModel,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -272,18 +275,24 @@ class FriendRequestButton extends StatelessWidget {
     Widget buildFriendRequestButton() {
       if (currentUser.uid == userModel.uid &&
           userModel.friendRequestsUIDs.isNotEmpty) {
-        return MyElevatedButton(
-          onPressed: () {
-            // navigate to friend requests screen
-            Navigator.pushNamed(
-              context,
-              Constants.friendRequestsScreen,
-            );
-          },
-          label: 'Requests',
-          width: MediaQuery.of(context).size.width * 0.4,
-          backgroundColor: Theme.of(context).cardColor,
-          textColor: Theme.of(context).colorScheme.primary,
+        return Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.orangeAccent,
+            child: IconButton(
+              onPressed: () {
+                // navigate to friend requests screen
+                Navigator.pushNamed(
+                  context,
+                  Constants.friendRequestsScreen,
+                );
+              },
+              icon: const Icon(
+                Icons.person_add,
+                color: Colors.black,
+              ),
+            ),
+          ),
         );
       } else {
         // not in our profile
