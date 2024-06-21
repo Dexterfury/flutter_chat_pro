@@ -54,12 +54,21 @@ class _GroupChatAppBarState extends State<GroupChatAppBar> {
                 },
               ),
               const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(groupModel.groupName),
-                  GroupMembers(membersUIDs: groupModel.membersUIDs),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      groupModel.groupName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    GroupMembers(membersUIDs: groupModel.membersUIDs),
+                  ],
+                ),
               ),
             ],
           ),
