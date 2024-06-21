@@ -171,57 +171,53 @@ class InfoDetailsCard extends StatelessWidget {
                           });
                     }),
                 const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width:
-                              150, // editted this line to limit the width of the name text
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              profileName,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            profileName,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          getEditWidget(
+                            'Change Name',
+                            Constants.changeName,
+                          ),
+                        ],
+                      ),
+                      // display phone number
+                      userModel != null && uid == userModel!.uid
+                          ? Text(
+                              phoneNumber,
+                              style: GoogleFonts.openSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
+                            )
+                          : const SizedBox.shrink(),
+                      const SizedBox(height: 5),
+                      userModel != null
+                          ? ProfileStatusWidget(
+                              userModel: userModel!,
+                              currentUser: authProvider.userModel!,
+                            )
+                          : GroupStatusWidget(
+                              isAdmin: isAdmin!,
+                              groupProvider: groupProvider!,
                             ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        getEditWidget(
-                          'Change Name',
-                          Constants.changeName,
-                        ),
-                      ],
-                    ),
-                    // display phone number
-                    userModel != null && uid == userModel!.uid
-                        ? Text(
-                            phoneNumber,
-                            style: GoogleFonts.openSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                    const SizedBox(height: 5),
-                    userModel != null
-                        ? ProfileStatusWidget(
-                            userModel: userModel!,
-                            currentUser: authProvider.userModel!,
-                          )
-                        : GroupStatusWidget(
-                            isAdmin: isAdmin!,
-                            groupProvider: groupProvider!,
-                          ),
 
-                    const SizedBox(height: 10),
-                  ],
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 )
               ],
             ),

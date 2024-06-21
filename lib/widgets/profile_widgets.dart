@@ -81,6 +81,7 @@ class ProfileStatusWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 8.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FriendsButton(
             currentUser: currentUser,
