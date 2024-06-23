@@ -200,6 +200,9 @@ exports.sendFriendRequestNotification = functions.firestore.document(
       if(beforeWaitingApprovalUIDs.length < AfterWaitingApprovalUIDs.length) {
         const newMemberId = AfterWaitingApprovalUIDs[AfterWaitingApprovalUIDs.length - 1];
 
+        log("HERE ", newMemberId);
+        console.log("HERE ##############",  newMemberId);
+
         // get user data from firestore
       const newMemberDoc = await db.collection("users").doc(newMemberId).get();
       // check if user exists in firestore
@@ -220,12 +223,14 @@ exports.sendFriendRequestNotification = functions.firestore.document(
       newMemberImage = defaultImageUrl;
      }
 
+
       // get admins tokens
       const adminTokens = await getGroupTokens(groupId, true, null);
 
       if(!adminTokens.length) {
         return null;
       }
+
 
       const requestMessage = `New member request to join "${groupName}" group`;
 
@@ -449,7 +454,7 @@ exports.sendFriendRequestNotification = functions.firestore.document(
      */
 
     async function getGroupTokens(groupId, admin, senderId) {
-      const field = admin ? "adminUIDs" : "membersUIDs";
+      const field = admin ? "adminsUIDs" : "membersUIDs";
 
       const userIds = await db
        .collection("groups")
@@ -466,7 +471,6 @@ exports.sendFriendRequestNotification = functions.firestore.document(
     if(!admin && senderId) {
       tokens = tokens.filter((token, index) => tokensSnapshot.docs[index].data().uid!== senderId);
     }
-
     return tokens;
     }
 
