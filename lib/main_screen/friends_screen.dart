@@ -30,6 +30,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
               onChanged: (value) {
                 print(value);
               },
+              onSuffixTap: () {
+                print('suffix tap');
+                FocusScope.of(context).unfocus();
+              },
             ),
 
             const Expanded(
