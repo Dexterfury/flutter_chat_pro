@@ -443,20 +443,29 @@ class GroupProvider extends ChangeNotifier {
   }
 
   // get a stream all private groups that contains the our userId
+  // Stream<List<GroupModel>> getPrivateGroupsStream({required String userId}) {
+  //   return _firestore
+  //       .collection(Constants.groups)
+  //       .where(Constants.membersUIDs, arrayContains: userId)
+  //       .where(Constants.isPrivate, isEqualTo: true)
+  //       .snapshots()
+  //       .asyncMap((event) {
+  //     List<GroupModel> groups = [];
+  //     for (var group in event.docs) {
+  //       groups.add(GroupModel.fromMap(group.data()));
+  //     }
+
+  //     return groups;
+  //   });
+  // }
   Stream<List<GroupModel>> getPrivateGroupsStream({required String userId}) {
     return _firestore
         .collection(Constants.groups)
         .where(Constants.membersUIDs, arrayContains: userId)
         .where(Constants.isPrivate, isEqualTo: true)
         .snapshots()
-        .asyncMap((event) {
-      List<GroupModel> groups = [];
-      for (var group in event.docs) {
-        groups.add(GroupModel.fromMap(group.data()));
-      }
-
-      return groups;
-    });
+        .map((event) =>
+            event.docs.map((doc) => GroupModel.fromMap(doc.data())).toList());
   }
 
   // get a stream all public groups that contains the our userId

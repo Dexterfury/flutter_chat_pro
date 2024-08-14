@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
