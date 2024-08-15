@@ -17,12 +17,14 @@ class PrivateGroupScreen extends StatefulWidget {
 }
 
 class _PrivateGroupScreenState extends State<PrivateGroupScreen> {
+  final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
   Timer? _debounce;
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -43,8 +45,10 @@ class _PrivateGroupScreenState extends State<PrivateGroupScreen> {
             padding: const EdgeInsets.all(8.0),
             child: CupertinoSearchTextField(
               placeholder: 'Search',
+              controller: _searchController,
               onChanged: _onSearchChanged,
               onSuffixTap: () {
+                _searchController.clear();
                 setState(() => searchQuery = '');
                 FocusScope.of(context).unfocus();
               },
