@@ -1,13 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/display_user_image.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:provider/provider.dart';
 
 class UserInformationScreen extends StatefulWidget {
@@ -82,7 +79,8 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
                     : () {
                         if (_nameController.text.isEmpty ||
                             _nameController.text.length < 3) {
-                          showSnackBar(context, 'Please enter your name');
+                          GlobalMethods.showSnackBar(
+                              context, 'Please enter your name');
                           return;
                         }
                         // save user data to firestore
@@ -163,7 +161,7 @@ class _UserInformationScreenState extends State<UserInformationScreen> {
         navigateToHomeScreen();
       },
       onFail: () async {
-        showSnackBar(context, 'Failed to save user data');
+        GlobalMethods.showSnackBar(context, 'Failed to save user data');
       },
     );
   }

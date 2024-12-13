@@ -41,7 +41,7 @@ class _ChatAppBarState extends State<ChatAppBar> {
 
         return Row(
           children: [
-            userImageWidget(
+            GlobalMethods.userImageWidget(
               imageUrl: userModel.image,
               radius: 20,
               onTap: () {

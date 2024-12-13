@@ -1,29 +1,23 @@
-import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:date_format/date_format.dart';
 import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_pro/constants.dart';
-import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/models/chat_model.dart';
 import 'package:flutter_chat_pro/models/group_model.dart';
-import 'package:flutter_chat_pro/models/last_message_model.dart';
 import 'package:flutter_chat_pro/streams/data_repository.dart';
+import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/chat_widget.dart';
 
 class ChatsStream extends StatelessWidget {
   const ChatsStream({
     super.key,
     required this.uid,
-    required this.group,
+    this.groupModel,
     this.searchQuery = '',
     this.limit = 20,
     this.isLive = true,
   });
 
   final String uid;
-  final GroupType group;
+  final GroupModel? groupModel;
   final String searchQuery;
   final int limit;
   final bool isLive;
@@ -33,13 +27,15 @@ class ChatsStream extends StatelessWidget {
     return FirestorePagination(
         limit: limit,
         isLive: isLive,
-        query: DataRepository.getChatsListQuery(userId: uid, group: group),
+        query: DataRepository.getChatsListQuery(
+            userId: uid, groupModel: groupModel),
         itemBuilder: (context, documentSnapshot, index) {
           // Get the document data at index
           final documnets = documentSnapshot[index];
 
           // Get chat data from document
-          final ChatModel chatModel = getChatData(documnets, group);
+          final ChatModel chatModel = GlobalMethods.getChatData(
+              documnets: documnets, groupModel: groupModel);
 
           // Apply search filter, if item does not match search query, return empty widget
           if (!chatModel.name
@@ -48,7 +44,8 @@ class ChatsStream extends StatelessWidget {
             // Check if this is the last item and no items matched the search
             if (index == documentSnapshot.length - 1 &&
                 !documentSnapshot.any((doc) {
-                  final model = getChatData(doc, group);
+                  final model = GlobalMethods.getChatData(
+                      documnets: documnets, groupModel: groupModel);
                   return model.name
                       .toLowerCase()
                       .contains(searchQuery.toLowerCase());
@@ -68,19 +65,11 @@ class ChatsStream extends StatelessWidget {
 
           return ChatWidget(
             chatModel: chatModel,
-            isGroup: group != GroupType.none,
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                Constants.chatScreen,
-                arguments: {
-                  Constants.contactUID: chatModel.contactUID,
-                  Constants.contactName: chatModel.name,
-                  Constants.contactImage: chatModel.image,
-                  Constants.groupId: '',
-                },
-              );
-            },
+            isGroup: groupModel != null,
+            onTap: () => GlobalMethods.navigateToChatScreen(
+              context: context,
+              chatModel: chatModel,
+            ),
           );
         },
         initialLoader: const Center(
@@ -92,46 +81,5 @@ class ChatsStream extends StatelessWidget {
         bottomLoader: const Center(
           child: CircularProgressIndicator(),
         ));
-  }
-}
-
-ChatModel getChatData(
-  DocumentSnapshot<Object?> documnets,
-  GroupType group,
-) {
-  if (group == GroupType.none) {
-    LastMessageModel chat =
-        LastMessageModel.fromMap(documnets.data() as Map<String, dynamic>);
-    final dateTime = formatDate(chat.timeSent, [hh, ':', nn, ' ', am]);
-    final senderUID = chat.senderUID;
-    final messageType = chat.messageType;
-
-    ChatModel chatModel = ChatModel(
-      name: chat.contactName,
-      lastMessage: chat.message,
-      senderUID: senderUID,
-      contactUID: chat.contactUID,
-      image: chat.contactImage,
-      messageType: messageType,
-      timeSent: dateTime,
-    );
-    return chatModel;
-  } else {
-    GroupModel chat =
-        GroupModel.fromMap(documnets.data() as Map<String, dynamic>);
-    final dateTime = formatDate(chat.timeSent, [hh, ':', nn, ' ', am]);
-    final senderUID = chat.senderUID;
-    final messageType = chat.messageType;
-    ChatModel chatModel = ChatModel(
-      name: chat.groupName,
-      lastMessage: chat.lastMessage,
-      senderUID: senderUID,
-      contactUID: chat.groupId,
-      image: chat.groupImage,
-      messageType: messageType,
-      timeSent: dateTime,
-    );
-
-    return chatModel;
   }
 }

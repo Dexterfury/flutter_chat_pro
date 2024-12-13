@@ -2,14 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
@@ -70,7 +67,7 @@ class AuthenticationProvider extends ChangeNotifier {
                     onSuccess();
                   },
                   onError: (String error) {
-                    showSnackBar(context, error);
+                    GlobalMethods.showSnackBar(context, error);
                   },
                 );
               },
@@ -87,7 +84,7 @@ class AuthenticationProvider extends ChangeNotifier {
                     onSuccess();
                   },
                   onError: (String error) {
-                    showSnackBar(context, error);
+                    GlobalMethods.showSnackBar(context, error);
                   },
                 );
               },
@@ -105,7 +102,7 @@ class AuthenticationProvider extends ChangeNotifier {
     required Function() onSuccess,
     required Function(String) onError,
   }) async {
-    _finalFileImage = await pickImage(
+    _finalFileImage = await GlobalMethods.pickImage(
       fromCamera: fromCamera,
       onFail: (String message) => onError(message),
     );
@@ -230,7 +227,7 @@ class AuthenticationProvider extends ChangeNotifier {
         _isSuccessful = false;
         _isLoading = false;
         notifyListeners();
-        showSnackBar(context, e.toString());
+        GlobalMethods.showSnackBar(context, e.toString());
         log('Error: ${e.toString()}');
       },
       codeSent: (String verificationId, int? resendToken) async {
@@ -303,20 +300,21 @@ class AuthenticationProvider extends ChangeNotifier {
           _isSuccessful = false;
           _isLoading = false;
           notifyListeners();
-          showSnackBar(context, e.toString());
+          GlobalMethods.showSnackBar(context, e.toString());
         },
         codeSent: (String verificationId, int? resendToken) async {
           _isLoading = false;
           _resendToken = resendToken;
           notifyListeners();
-          showSnackBar(context, 'Successful sent code');
+          GlobalMethods.showSnackBar(context, 'Successful sent code');
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
         timeout: const Duration(seconds: 60),
         forceResendingToken: resendToken,
       );
     } else {
-      showSnackBar(context, 'Please wait $_secondsRemaing seconds to resend');
+      GlobalMethods.showSnackBar(
+          context, 'Please wait $_secondsRemaing seconds to resend');
     }
   }
 
@@ -346,7 +344,7 @@ class AuthenticationProvider extends ChangeNotifier {
       _isSuccessful = false;
       _isLoading = false;
       notifyListeners();
-      showSnackBar(context, e.toString());
+      GlobalMethods.showSnackBar(context, e.toString());
     });
   }
 
@@ -363,7 +361,7 @@ class AuthenticationProvider extends ChangeNotifier {
     try {
       if (_finalFileImage != null) {
         // upload image to storage
-        String imageUrl = await storeFileToStorage(
+        String imageUrl = await GlobalMethods.storeFileToStorage(
             file: _finalFileImage!,
             reference: '${Constants.userImages}/${userModel.uid}');
 
@@ -567,7 +565,7 @@ class AuthenticationProvider extends ChangeNotifier {
           ? '${Constants.groupImages}/$id'
           : '${Constants.userImages}/$id';
 
-      final String imageUrl = await storeFileToStorage(
+      final String imageUrl = await GlobalMethods.storeFileToStorage(
         file: _finalFileImage!,
         reference: filePath,
       );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class ExitGroupCard extends StatelessWidget {
           iconContainerColor: Colors.red,
           onTap: () {
             // exit group
-            showMyAnimatedDialog(
+            MyDialogs.showMyAnimatedDialog(
               context: context,
               title: 'Exit Group',
               content: 'Are you sure you want to exit the group?',
@@ -34,7 +35,8 @@ class ExitGroupCard extends StatelessWidget {
                   // exit group
                   final groupProvider = context.read<GroupProvider>();
                   await groupProvider.exitGroup(uid: uid).whenComplete(() {
-                    showSnackBar(context, 'You have exited the group');
+                    GlobalMethods.showSnackBar(
+                        context, 'You have exited the group');
                     // navigate to first screen
                     Navigator.popUntil(context, (route) => route.isFirst);
                   });

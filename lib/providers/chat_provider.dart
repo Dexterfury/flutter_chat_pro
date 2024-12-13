@@ -151,7 +151,8 @@ class ChatProvider extends ChangeNotifier {
       // 2. upload file to firebase storage
       final ref =
           '${Constants.chatFiles}/${messageType.name}/${sender.uid}/$contactUID/$messageId';
-      String fileUrl = await storeFileToStorage(file: file, reference: ref);
+      String fileUrl =
+          await GlobalMethods.storeFileToStorage(file: file, reference: ref);
 
       // 3. update/set the messagemodel
       final messageModel = MessageModel(

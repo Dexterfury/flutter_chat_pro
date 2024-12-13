@@ -21,7 +21,7 @@ class ChatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
     return ListTile(
-      leading: userImageWidget(
+      leading: GlobalMethods.userImageWidget(
         imageUrl: chatModel.image,
         radius: 40,
         onTap: () {},
@@ -37,7 +37,7 @@ class ChatWidget extends StatelessWidget {
                 )
               : const SizedBox(),
           const SizedBox(width: 5),
-          messageToShow(
+          GlobalMethods.messageToShow(
             type: chatModel.messageType,
             message: chatModel.lastMessage,
           ),

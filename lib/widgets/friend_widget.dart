@@ -34,8 +34,8 @@ class FriendWidget extends StatelessWidget {
     return ListTile(
       minLeadingWidth: 0.0,
       contentPadding: const EdgeInsets.only(left: -10),
-      leading:
-          userImageWidget(imageUrl: friend.image, radius: 40, onTap: () {}),
+      leading: GlobalMethods.userImageWidget(
+          imageUrl: friend.image, radius: 40, onTap: () {}),
       title: Text(name),
       subtitle: Text(
         friend.aboutMe,
@@ -51,7 +51,7 @@ class FriendWidget extends StatelessWidget {
                       .read<AuthenticationProvider>()
                       .acceptFriendRequest(friendID: friend.uid)
                       .whenComplete(() {
-                    showSnackBar(
+                    GlobalMethods.showSnackBar(
                         context, 'You are now friends with ${friend.name}');
                   });
                 } else {
@@ -64,7 +64,7 @@ class FriendWidget extends StatelessWidget {
                       )
                       .whenComplete(() {
                     Navigator.pop(context);
-                    showSnackBar(context,
+                    GlobalMethods.showSnackBar(context,
                         '${friend.name} is now a member of this group');
                   });
                 }

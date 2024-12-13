@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 
 class GoupMembersCard extends StatefulWidget {
   const GoupMembersCard({
@@ -52,7 +53,7 @@ class _GoupMembersCardState extends State<GoupMembersCard> {
                     final member = snapshot.data![index];
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: userImageWidget(
+                      leading: GlobalMethods.userImageWidget(
                           imageUrl: member.image, radius: 40, onTap: () {}),
                       title: Text(member.name),
                       subtitle: Text(member.aboutMe),
@@ -67,7 +68,7 @@ class _GoupMembersCardState extends State<GoupMembersCard> {
                           ? null
                           : () {
                               // show dialog to remove member
-                              showMyAnimatedDialog(
+                              MyDialogs.showMyAnimatedDialog(
                                 context: context,
                                 title: 'Remove Member',
                                 content:

@@ -95,7 +95,7 @@ class MessageReplyPreview extends StatelessWidget {
         getTitle(),
         const SizedBox(height: 5),
         replyMessageModel != null
-            ? messageToShow(
+            ? GlobalMethods.messageToShow(
                 type: type,
                 message: replyMessageModel!.message,
               )

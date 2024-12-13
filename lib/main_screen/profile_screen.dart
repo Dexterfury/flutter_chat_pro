@@ -5,6 +5,7 @@ import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/info_details_card.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
@@ -227,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           icon: Icons.logout_outlined,
                                           iconContainerColor: Colors.red,
                                           onTap: () {
-                                            showMyAnimatedDialog(
+                                            MyDialogs.showMyAnimatedDialog(
                                               context: context,
                                               title: 'Logout',
                                               content:

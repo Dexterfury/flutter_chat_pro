@@ -46,7 +46,7 @@ class _GroupChatAppBarState extends State<GroupChatAppBar> {
           },
           child: Row(
             children: [
-              userImageWidget(
+              GlobalMethods.userImageWidget(
                 imageUrl: groupModel.groupImage,
                 radius: 20,
                 onTap: () {

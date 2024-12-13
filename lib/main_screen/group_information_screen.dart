@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
-import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/add_members.dart';
 import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/exit_group_card.dart';
@@ -70,7 +70,7 @@ class _GroupInformationScreenState extends State<GroupInformationScreen> {
                         onPressed: () {
                           groupProvider.setEmptyTemps();
                           // show  bottom sheet to add members
-                          showAddMembersBottomSheet(
+                          MyDialogs.showAddMembersBottomSheet(
                             context: context,
                             groupMembersUIDs:
                                 groupProvider.groupModel.membersUIDs,

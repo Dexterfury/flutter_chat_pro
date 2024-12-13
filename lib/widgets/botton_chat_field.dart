@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
@@ -137,10 +136,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
   }
 
   void selectImage(bool fromCamera) async {
-    finalFileImage = await pickImage(
+    finalFileImage = await GlobalMethods.pickImage(
       fromCamera: fromCamera,
       onFail: (String message) {
-        showSnackBar(context, message);
+        GlobalMethods.showSnackBar(context, message);
       },
     );
 
@@ -152,9 +151,9 @@ class _BottomChatFieldState extends State<BottomChatField> {
 
   // select a video file from device
   void selectVideo() async {
-    File? fileVideo = await pickVideo(
+    File? fileVideo = await GlobalMethods.pickVideo(
       onFail: (String message) {
-        showSnackBar(context, message);
+        GlobalMethods.showSnackBar(context, message);
       },
     );
 
@@ -218,7 +217,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
         setState(() {
           isSendingAudio = false;
         });
-        showSnackBar(context, error);
+        GlobalMethods.showSnackBar(context, error);
       },
     );
   }
@@ -241,7 +240,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
           _focusNode.unfocus();
         },
         onError: (error) {
-          showSnackBar(context, error);
+          GlobalMethods.showSnackBar(context, error);
         });
   }
 
@@ -282,7 +281,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                         groupImage: groupProvider.groupModel.groupImage,
                       )
                           .whenComplete(() {
-                        showSnackBar(context, 'Request sent');
+                        GlobalMethods.showSnackBar(context, 'Request sent');
                       });
                       print('request to join group');
                     },

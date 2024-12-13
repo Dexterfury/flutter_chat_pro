@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
@@ -13,7 +12,6 @@ import 'package:flutter_chat_pro/widgets/display_user_image.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
 import 'package:flutter_chat_pro/widgets/group_type_list_tile.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +32,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   String userImage = '';
 
   void selectImage(bool fromCamera) async {
-    finalFileImage = await pickImage(
+    finalFileImage = await GlobalMethods.pickImage(
       fromCamera: fromCamera,
       onFail: (String message) {
-        showSnackBar(context, message);
+        GlobalMethods.showSnackBar(context, message);
       },
     );
 
@@ -115,19 +113,20 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final groupProvider = context.read<GroupProvider>();
     // check if the group name is empty
     if (groupNameController.text.isEmpty) {
-      showSnackBar(context, 'Please enter group name');
+      GlobalMethods.showSnackBar(context, 'Please enter group name');
       return;
     }
 
     // name is less than 3 characters
     if (groupNameController.text.length < 3) {
-      showSnackBar(context, 'Group name must be at least 3 characters');
+      GlobalMethods.showSnackBar(
+          context, 'Group name must be at least 3 characters');
       return;
     }
 
     // check if the group description is empty
     if (groupDescriptionController.text.isEmpty) {
-      showSnackBar(context, 'Please enter group description');
+      GlobalMethods.showSnackBar(context, 'Please enter group description');
       return;
     }
 
@@ -158,11 +157,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       newGroupModel: groupModel,
       fileImage: finalFileImage,
       onSuccess: () {
-        showSnackBar(context, 'Group created successfully');
+        GlobalMethods.showSnackBar(context, 'Group created successfully');
         Navigator.pop(context);
       },
       onFail: (error) {
-        showSnackBar(context, error);
+        GlobalMethods.showSnackBar(context, error);
       },
     );
   }

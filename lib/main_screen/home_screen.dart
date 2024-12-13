@@ -200,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen>
           actions: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: userImageWidget(
+              child: GlobalMethods.userImageWidget(
                 imageUrl: authProvider.userModel!.image,
                 radius: 20,
                 onTap: () {

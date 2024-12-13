@@ -43,7 +43,7 @@ class AlignMessageLeftWidget extends StatelessWidget {
             if (isGroupChat)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: userImageWidget(
+                child: GlobalMethods.userImageWidget(
                   imageUrl: message.senderImage,
                   radius: 20,
                   onTap: () {},

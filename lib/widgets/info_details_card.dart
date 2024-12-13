@@ -4,6 +4,7 @@ import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/profile_widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class InfoDetailsCard extends StatelessWidget {
         if (isAdmin!) {
           return InkWell(
             onTap: () {
-              showMyAnimatedDialog(
+              MyDialogs.showMyAnimatedDialog(
                 context: context,
                 title: title,
                 content: content,
@@ -101,7 +102,7 @@ class InfoDetailsCard extends StatelessWidget {
 
         return InkWell(
           onTap: () {
-            showMyAnimatedDialog(
+            MyDialogs.showMyAnimatedDialog(
               context: context,
               title: title,
               content: content,
@@ -144,7 +145,7 @@ class InfoDetailsCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                userImageWidget(
+                GlobalMethods.userImageWidget(
                     imageUrl: profileImage,
                     fileImage: authProvider.finalFileImage,
                     radius: 50,

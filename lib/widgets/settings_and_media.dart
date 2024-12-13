@@ -40,7 +40,8 @@ class SettingsAndMedia extends StatelessWidget {
               onTap: () {
                 if (!isAdmin) {
                   // show snackbar
-                  showSnackBar(context, 'Only admin can change group settings');
+                  GlobalMethods.showSnackBar(
+                      context, 'Only admin can change group settings');
                 } else {
                   groupProvider.updateGroupAdminsList().whenComplete(() {
                     // navigate to group settings screen

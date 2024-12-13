@@ -5,6 +5,7 @@ import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +28,7 @@ class GroupStatusWidget extends StatelessWidget {
               ? null
               : () {
                   // show dialog to change group type
-                  showMyAnimatedDialog(
+                  MyDialogs.showMyAnimatedDialog(
                     context: context,
                     title: 'Change Group Type',
                     content:
@@ -139,7 +140,8 @@ class FriendsButton extends StatelessWidget {
                     .read<AuthenticationProvider>()
                     .cancleFriendRequest(friendID: userModel.uid)
                     .whenComplete(() {
-                  showSnackBar(context, 'friend request canclled');
+                  GlobalMethods.showSnackBar(
+                      context, 'friend request canclled');
                 });
               },
               label: 'Cancle Request',
@@ -155,7 +157,7 @@ class FriendsButton extends StatelessWidget {
                     .read<AuthenticationProvider>()
                     .acceptFriendRequest(friendID: userModel.uid)
                     .whenComplete(() {
-                  showSnackBar(
+                  GlobalMethods.showSnackBar(
                       context, 'You are now friends with ${userModel.name}');
                 });
               },
@@ -198,7 +200,7 @@ class FriendsButton extends StatelessWidget {
                                   .read<AuthenticationProvider>()
                                   .removeFriend(friendID: userModel.uid)
                                   .whenComplete(() {
-                                showSnackBar(
+                                GlobalMethods.showSnackBar(
                                     context, 'You are no longer friends');
                               });
                             },
@@ -241,7 +243,7 @@ class FriendsButton extends StatelessWidget {
                     .read<AuthenticationProvider>()
                     .sendFriendRequest(friendID: userModel.uid)
                     .whenComplete(() {
-                  showSnackBar(context, 'friend request sent');
+                  GlobalMethods.showSnackBar(context, 'friend request sent');
                 });
               },
               label: 'Send Request',

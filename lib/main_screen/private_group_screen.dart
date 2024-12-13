@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_chat_pro/models/chat_model.dart';
 import 'package:flutter_chat_pro/models/group_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/chat_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -105,41 +107,27 @@ class MyPrivateGroups extends StatelessWidget {
             final groupModel = filteredGroups[index];
             final dateTime =
                 formatDate(groupModel.timeSent, [hh, ':', nn, ' ', am]);
+
             final ChatModel chatModel = ChatModel(
               name: groupModel.groupName,
               lastMessage: groupModel.lastMessage,
               senderUID: groupModel.senderUID,
               contactUID: groupModel.groupId,
-              image: groupModel.groupId,
+              image: groupModel.groupImage,
               messageType: groupModel.messageType,
               timeSent: dateTime,
             );
             return ChatWidget(
-              chatModel: chatModel,
-              isGroup: true,
-              onTap: () => _navigateToGroupChat(context, groupModel),
-            );
+                chatModel: chatModel,
+                isGroup: true,
+                onTap: () => GlobalMethods.navigateToChatScreen(
+                      context: context,
+                      chatModel: chatModel,
+                      groupModel: groupModel,
+                    ));
           },
         );
       },
     );
-  }
-
-  void _navigateToGroupChat(BuildContext context, GroupModel groupModel) {
-    context
-        .read<GroupProvider>()
-        .setGroupModel(groupModel: groupModel)
-        .whenComplete(() {
-      Navigator.pushNamed(
-        context,
-        Constants.chatScreen,
-        arguments: {
-          Constants.contactUID: groupModel.groupId,
-          Constants.contactName: groupModel.groupName,
-          Constants.contactImage: groupModel.groupImage,
-          Constants.groupId: groupModel.groupId,
-        },
-      );
-    });
   }
 }

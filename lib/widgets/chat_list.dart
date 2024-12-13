@@ -59,7 +59,7 @@ class _ChatListState extends State<ChatList> {
       case 'Copy':
         // copy message to clipboard
         Clipboard.setData(ClipboardData(text: message.message));
-        showSnackBar(context, 'Message copied to clipboard');
+        GlobalMethods.showSnackBar(context, 'Message copied to clipboard');
         break;
       case 'Delete':
         final currentUserId =
@@ -264,8 +264,8 @@ class _ChatListState extends State<ChatList> {
                 element.timeSent!.day,
               );
             },
-            groupHeaderBuilder: (dynamic groupedByValue) =>
-                SizedBox(height: 40, child: buildDateTime(groupedByValue)),
+            groupHeaderBuilder: (dynamic groupedByValue) => SizedBox(
+                height: 40, child: GlobalMethods.buildDateTime(groupedByValue)),
             itemBuilder: (context, dynamic element) {
               final message = element as MessageModel;
 

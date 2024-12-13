@@ -37,7 +37,6 @@ class _MyChatsScreenState extends State<MyChatsScreen> {
               Expanded(
                   child: ChatsStream(
                 uid: uid,
-                group: GroupType.none,
                 searchQuery: searchProvider.searchQuery,
               )),
             ],

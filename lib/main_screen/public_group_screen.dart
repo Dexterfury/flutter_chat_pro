@@ -7,6 +7,7 @@ import 'package:flutter_chat_pro/models/group_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/chat_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -63,7 +64,7 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                     lastMessage: groupModel.lastMessage,
                     senderUID: groupModel.senderUID,
                     contactUID: groupModel.groupId,
-                    image: groupModel.groupId,
+                    image: groupModel.groupImage,
                     messageType: groupModel.messageType,
                     timeSent: dateTime,
                   );
@@ -95,12 +96,13 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                         if (groupModel.requestToJoing) {
                           // check if user has already requested to join the group
                           if (groupModel.awaitingApprovalUIDs.contains(uid)) {
-                            showSnackBar(context, 'Request already sent');
+                            GlobalMethods.showSnackBar(
+                                context, 'Request already sent');
                             return;
                           }
 
                           // show animation to join group to request to join
-                          showMyAnimatedDialog(
+                          MyDialogs.showMyAnimatedDialog(
                             context: context,
                             title: 'Request to join',
                             content:
@@ -118,7 +120,8 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                                       groupImage: groupModel.groupImage,
                                     )
                                     .whenComplete(() {
-                                  showSnackBar(context, 'Request sent');
+                                  GlobalMethods.showSnackBar(
+                                      context, 'Request sent');
                                 });
                               }
                             },

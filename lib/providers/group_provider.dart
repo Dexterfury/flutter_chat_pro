@@ -394,7 +394,7 @@ class GroupProvider extends ChangeNotifier {
       // check if the file image is null
       if (fileImage != null) {
         // upload image to firebase storage
-        final String imageUrl = await storeFileToStorage(
+        final String imageUrl = await GlobalMethods.storeFileToStorage(
             file: fileImage, reference: '${Constants.groupImages}/$groupId');
         newGroupModel.groupImage = imageUrl;
       }
