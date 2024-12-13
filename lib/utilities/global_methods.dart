@@ -12,6 +12,7 @@ import 'package:flutter_chat_pro/models/group_model.dart';
 import 'package:flutter_chat_pro/models/last_message_model.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/utilities/assets_manager.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -197,7 +198,7 @@ class GlobalMethods {
     return fileUrl;
   }
 
-  static ChatModel getChatData({
+  static (ChatModel, GroupModel?) getChatData({
     required DocumentSnapshot<Object?> documnets,
     GroupModel? groupModel,
   }) {
@@ -217,14 +218,13 @@ class GlobalMethods {
         messageType: messageType,
         timeSent: dateTime,
       );
-      return chatModel;
+      return (chatModel, null);
     } else {
       GroupModel chat =
           GroupModel.fromMap(documnets.data() as Map<String, dynamic>);
       final dateTime = formatDate(chat.timeSent, [hh, ':', nn, ' ', am]);
       final senderUID = chat.senderUID;
       final messageType = chat.messageType;
-      log('groupImage: ${chat.groupImage}');
       ChatModel chatModel = ChatModel(
         name: chat.groupName,
         lastMessage: chat.lastMessage,
@@ -235,45 +235,110 @@ class GlobalMethods {
         timeSent: dateTime,
       );
 
-      return chatModel;
+      return (chatModel, chat);
     }
   }
 
 // Navigate to chat screeen
   static void navigateToChatScreen({
     required BuildContext context,
+    required String uid,
     required ChatModel chatModel,
     GroupModel? groupModel,
   }) {
-    if (groupModel != null) {
-      context
-          .read<GroupProvider>()
-          .setGroupModel(groupModel: groupModel)
-          .whenComplete(() {
-        if (context.mounted) {
-          Navigator.pushNamed(
-            context,
-            Constants.chatScreen,
-            arguments: {
-              Constants.contactUID: groupModel.groupId,
-              Constants.contactName: groupModel.groupName,
-              Constants.contactImage: groupModel.groupImage,
-              Constants.groupId: groupModel.groupId,
-            },
-          );
-        }
-      });
-    } else {
-      Navigator.pushNamed(
-        context,
-        Constants.chatScreen,
-        arguments: {
-          Constants.contactUID: chatModel.contactUID,
-          Constants.contactName: chatModel.name,
-          Constants.contactImage: chatModel.image,
-          Constants.groupId: '',
-        },
-      );
+    if (groupModel == null) {
+      _navigateToPersonalChat(context, chatModel);
+      return;
     }
+
+    _handleGroupNavigation(context, uid, groupModel);
+  }
+
+  static void _navigateToPersonalChat(
+      BuildContext context, ChatModel chatModel) {
+    Navigator.pushNamed(
+      context,
+      Constants.chatScreen,
+      arguments: {
+        Constants.contactUID: chatModel.contactUID,
+        Constants.contactName: chatModel.name,
+        Constants.contactImage: chatModel.image,
+        Constants.groupId: '',
+      },
+    );
+  }
+
+  static void _handleGroupNavigation(
+      BuildContext context, String uid, GroupModel groupModel) {
+    if (groupModel.isPrivate) {
+      _navigateToGroupChat(context, groupModel);
+      return;
+    }
+
+    if (groupModel.membersUIDs.contains(uid)) {
+      _navigateToGroupChat(context, groupModel);
+      return;
+    }
+
+    if (groupModel.requestToJoing) {
+      _handleJoinRequest(context, uid, groupModel);
+      return;
+    }
+
+    _navigateToGroupChat(context, groupModel);
+  }
+
+  static void _navigateToGroupChat(
+      BuildContext context, GroupModel groupModel) {
+    context
+        .read<GroupProvider>()
+        .setGroupModel(groupModel: groupModel)
+        .whenComplete(() {
+      if (context.mounted) {
+        Navigator.pushNamed(
+          context,
+          Constants.chatScreen,
+          arguments: {
+            Constants.contactUID: groupModel.groupId,
+            Constants.contactName: groupModel.groupName,
+            Constants.contactImage: groupModel.groupImage,
+            Constants.groupId: groupModel.groupId,
+          },
+        );
+      }
+    });
+  }
+
+  static void _handleJoinRequest(
+      BuildContext context, String uid, GroupModel groupModel) {
+    if (groupModel.awaitingApprovalUIDs.contains(uid)) {
+      GlobalMethods.showSnackBar(context, 'Request already sent');
+      return;
+    }
+
+    MyDialogs.showMyAnimatedDialog(
+      context: context,
+      title: 'Request to join',
+      content:
+          'You need to request to join this group, before you can view the group content',
+      textAction: 'Request to join',
+      onActionTap: (value, updatedText) async {
+        if (!value) return;
+
+        await context
+            .read<GroupProvider>()
+            .sendRequestToJoinGroup(
+              groupId: groupModel.groupId,
+              uid: uid,
+              groupName: groupModel.groupName,
+              groupImage: groupModel.groupImage,
+            )
+            .whenComplete(() {
+          if (context.mounted) {
+            GlobalMethods.showSnackBar(context, 'Request sent');
+          }
+        });
+      },
+    );
   }
 }

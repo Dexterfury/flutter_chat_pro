@@ -96,4 +96,28 @@ class GroupModel {
           List<String>.from(map[Constants.awaitingApprovalUIDs] ?? []),
     );
   }
+
+  // Initial empty group constructor
+  GroupModel.empty({bool isPrivate = false})
+      : this(
+          creatorUID: '',
+          groupName: '',
+          groupDescription: '',
+          groupImage: '',
+          groupId: '',
+          lastMessage: '',
+          senderUID: '',
+          messageType: MessageEnum.text,
+          messageId: '',
+          timeSent: DateTime.now(),
+          createdAt: DateTime.now(),
+          isPrivate: isPrivate,
+          editSettings: false,
+          approveMembers: false,
+          lockMessages: false,
+          requestToJoing: false,
+          membersUIDs: [],
+          adminsUIDs: [],
+          awaitingApprovalUIDs: [],
+        );
 }

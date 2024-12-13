@@ -34,8 +34,9 @@ class ChatsStream extends StatelessWidget {
           final documnets = documentSnapshot[index];
 
           // Get chat data from document
-          final ChatModel chatModel = GlobalMethods.getChatData(
-              documnets: documnets, groupModel: groupModel);
+          final (ChatModel chatModel, GroupModel? newGModel) =
+              GlobalMethods.getChatData(
+                  documnets: documnets, groupModel: groupModel);
 
           // Apply search filter, if item does not match search query, return empty widget
           if (!chatModel.name
@@ -44,9 +45,9 @@ class ChatsStream extends StatelessWidget {
             // Check if this is the last item and no items matched the search
             if (index == documentSnapshot.length - 1 &&
                 !documentSnapshot.any((doc) {
-                  final model = GlobalMethods.getChatData(
+                  final (chatModel, newGModel) = GlobalMethods.getChatData(
                       documnets: documnets, groupModel: groupModel);
-                  return model.name
+                  return chatModel.name
                       .toLowerCase()
                       .contains(searchQuery.toLowerCase());
                 })) {
@@ -68,7 +69,9 @@ class ChatsStream extends StatelessWidget {
             isGroup: groupModel != null,
             onTap: () => GlobalMethods.navigateToChatScreen(
               context: context,
+              uid: uid,
               chatModel: chatModel,
+              groupModel: newGModel,
             ),
           );
         },
