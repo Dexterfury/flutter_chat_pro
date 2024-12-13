@@ -15,6 +15,7 @@ enum MessageEnum {
 enum GroupType {
   private,
   public,
+  none,
 }
 
 // extension convertMessageEnumToString on String

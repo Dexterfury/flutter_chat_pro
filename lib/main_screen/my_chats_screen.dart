@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
-import 'package:flutter_chat_pro/providers/chat_provider.dart';
+import 'package:flutter_chat_pro/providers/search_provider.dart';
 import 'package:flutter_chat_pro/streams/chats_stream.dart';
-import 'package:flutter_chat_pro/streams/search_stream.dart';
+import 'package:flutter_chat_pro/widgets/search_bar_widget.dart';
 import 'package:provider/provider.dart';
 
 class MyChatsScreen extends StatefulWidget {
@@ -19,31 +19,27 @@ class _MyChatsScreenState extends State<MyChatsScreen> {
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
+      body: Consumer<SearchProvider>(
+        builder: (context, searchProvider, child) {
           return Column(
             children: [
-              // cupertinosearchbar
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: CupertinoSearchTextField(
-                  placeholder: 'Search',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium!.color,
-                  ),
-                  onChanged: (value) {
-                    chatProvider.setSearchQuery(value);
-                  },
-                ),
+              // Search bar
+              SearchBarWidget(
+                onChanged: (value) {
+                  searchProvider.setSearchQuery(value);
+                },
+                onClear: () {
+                  searchProvider.clearSearchQuery();
+                  FocusScope.of(context).unfocus();
+                },
               ),
+
               Expanded(
-                child: chatProvider.searchQuery.isEmpty
-                    ? ChatsStream(uid: uid)
-                    : SearchStream(uid: uid),
-              ),
+                  child: ChatsStream(
+                uid: uid,
+                group: GroupType.none,
+                searchQuery: searchProvider.searchQuery,
+              )),
             ],
           );
         },

@@ -21,6 +21,7 @@ import 'package:flutter_chat_pro/main_screen/profile_screen.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/providers/search_provider.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:provider/provider.dart';
 
@@ -47,6 +48,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => GroupProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
       ],
       child: MyApp(savedThemeMode: savedThemeMode),
     ),

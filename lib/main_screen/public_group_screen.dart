@@ -1,6 +1,8 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
+import 'package:flutter_chat_pro/models/chat_model.dart';
 import 'package:flutter_chat_pro/models/group_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
@@ -54,8 +56,19 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final groupModel = snapshot.data![index];
+                  final dateTime =
+                      formatDate(groupModel.timeSent, [hh, ':', nn, ' ', am]);
+                  final ChatModel chatModel = ChatModel(
+                    name: groupModel.groupName,
+                    lastMessage: groupModel.lastMessage,
+                    senderUID: groupModel.senderUID,
+                    contactUID: groupModel.groupId,
+                    image: groupModel.groupId,
+                    messageType: groupModel.messageType,
+                    timeSent: dateTime,
+                  );
                   return ChatWidget(
-                      group: groupModel,
+                      chatModel: chatModel,
                       isGroup: true,
                       onTap: () {
                         // check if user is already a member of the group

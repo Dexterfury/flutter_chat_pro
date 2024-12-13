@@ -15,18 +15,8 @@ class ChatProvider extends ChangeNotifier {
   bool _isLoading = false;
   MessageReplyModel? _messageReplyModel;
 
-  String _searchQuery = '';
-
-  // getters
-  String get searchQuery => _searchQuery;
-
   bool get isLoading => _isLoading;
   MessageReplyModel? get messageReplyModel => _messageReplyModel;
-
-  void setSearchQuery(String value) {
-    _searchQuery = value;
-    notifyListeners();
-  }
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -484,21 +474,6 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  // get chatsList stream
-  Stream<List<LastMessageModel>> getChatsListStream(String userId) {
-    return _firestore
-        .collection(Constants.users)
-        .doc(userId)
-        .collection(Constants.chats)
-        .orderBy(Constants.timeSent, descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return LastMessageModel.fromMap(doc.data());
-      }).toList();
-    });
   }
 
   // stream messages from chat collection
