@@ -395,14 +395,6 @@ class AuthenticationProvider extends ChangeNotifier {
     return _firestore.collection(Constants.users).doc(userID).snapshots();
   }
 
-  // get all users stream
-  Stream<QuerySnapshot> getAllUsersStream({required String userID}) {
-    return _firestore
-        .collection(Constants.users)
-        .where(Constants.uid, isNotEqualTo: userID)
-        .snapshots();
-  }
-
   // send friend request
   Future<void> sendFriendRequest({
     required String friendID,

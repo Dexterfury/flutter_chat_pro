@@ -27,4 +27,9 @@ class DataRepository {
       return query;
     }
   }
+
+  // Get all users query
+  static Query getUsersQuery({required String userID}) {
+    return _firestore.collection(Constants.users);
+  }
 }

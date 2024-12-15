@@ -28,10 +28,6 @@ class _MyChatsScreenState extends State<MyChatsScreen> {
                 onChanged: (value) {
                   searchProvider.setSearchQuery(value);
                 },
-                onClear: () {
-                  searchProvider.clearSearchQuery();
-                  FocusScope.of(context).unfocus();
-                },
               ),
 
               Expanded(

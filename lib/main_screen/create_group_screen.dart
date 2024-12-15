@@ -170,7 +170,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(
-        title: Text('Create Group'),
+        title: const Text('Create Group'),
         onPressed: () => Navigator.pop(context),
         actions: [
           Padding(

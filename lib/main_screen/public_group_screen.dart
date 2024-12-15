@@ -28,10 +28,6 @@ class _PublicGroupScreenState extends State<PublicGroupScreen> {
                 onChanged: (value) {
                   searchProvider.setSearchQuery(value);
                 },
-                onClear: () {
-                  searchProvider.clearSearchQuery();
-                  FocusScope.of(context).unfocus();
-                },
               ),
 
               Expanded(
