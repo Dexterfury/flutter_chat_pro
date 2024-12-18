@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/providers/search_provider.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
+import 'package:flutter_chat_pro/widgets/search_bar_widget.dart';
 import 'package:provider/provider.dart';
 
 class MyDialogs {
@@ -81,7 +83,7 @@ class MyDialogs {
     );
   }
 
-// show bottom sheet with the list of all app users to add them to the group
+  // Bottom sheet with a list of all app users to add them to the group
   static void showAddMembersBottomSheet({
     required BuildContext context,
     required List<String> groupMembersUIDs,
@@ -90,9 +92,9 @@ class MyDialogs {
       context: context,
       builder: (context) {
         return PopScope(
-          onPopInvoked: (bool didPop) async {
+          onPopInvokedWithResult: (bool didPop, dynamic result) async {
             if (!didPop) return;
-            // do something when the bottom sheet is closed.
+            // Do something when the bottom sheet is closed.
             await context
                 .read<GroupProvider>()
                 .removeTempLists(isAdmins: false);
@@ -107,9 +109,11 @@ class MyDialogs {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: CupertinoSearchTextField(
+                        child: SearchBarWidget(
                           onChanged: (value) {
-                            // search for users
+                            context
+                                .read<SearchProvider>()
+                                .setSearchQuery(value);
                           },
                         ),
                       ),
@@ -119,7 +123,7 @@ class MyDialogs {
                               .read<GroupProvider>()
                               .updateGroupDataInFireStoreIfNeeded()
                               .whenComplete(() {
-                            // close bottom sheet
+                            // Close bottom sheet
                             Navigator.pop(context);
                           });
                         },
@@ -151,4 +155,75 @@ class MyDialogs {
       },
     );
   }
+
+// // show bottom sheet with the list of all app users to add them to the group
+//   static void showAddMembersBottomSheet({
+//     required BuildContext context,
+//     required List<String> groupMembersUIDs,
+//   }) {
+//     showModalBottomSheet(
+//       context: context,
+//       builder: (context) {
+//         return PopScope(
+//           onPopInvoked: (bool didPop) async {
+//             if (!didPop) return;
+//             // do something when the bottom sheet is closed.
+//             await context
+//                 .read<GroupProvider>()
+//                 .removeTempLists(isAdmins: false);
+//           },
+//           child: SizedBox(
+//             height: double.infinity,
+//             child: Column(
+//               children: [
+//                 Padding(
+//                   padding: const EdgeInsets.all(8.0),
+//                   child: Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(
+//                         child: CupertinoSearchTextField(
+//                           onChanged: (value) {
+//                             // search for users
+//                           },
+//                         ),
+//                       ),
+//                       TextButton(
+//                         onPressed: () {
+//                           context
+//                               .read<GroupProvider>()
+//                               .updateGroupDataInFireStoreIfNeeded()
+//                               .whenComplete(() {
+//                             // close bottom sheet
+//                             Navigator.pop(context);
+//                           });
+//                         },
+//                         child: const Text(
+//                           'Done',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const Divider(
+//                   thickness: 2,
+//                   color: Colors.grey,
+//                 ),
+//                 Expanded(
+//                   child: FriendsList(
+//                     viewType: FriendViewType.groupView,
+//                     groupMembersUIDs: groupMembersUIDs,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
 }
