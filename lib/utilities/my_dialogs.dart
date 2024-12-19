@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/providers/search_provider.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
+import 'package:flutter_chat_pro/widgets/search_bar_widget.dart';
 import 'package:provider/provider.dart';
 
 class MyDialogs {
@@ -90,7 +92,7 @@ class MyDialogs {
       context: context,
       builder: (context) {
         return PopScope(
-          onPopInvoked: (bool didPop) async {
+          onPopInvokedWithResult: (bool didPop, dynamic results) async {
             if (!didPop) return;
             // do something when the bottom sheet is closed.
             await context
@@ -107,9 +109,11 @@ class MyDialogs {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: CupertinoSearchTextField(
+                        child: SearchBarWidget(
                           onChanged: (value) {
-                            // search for users
+                            context
+                                .read<SearchProvider>()
+                                .setSearchQuery(value);
                           },
                         ),
                       ),
@@ -120,7 +124,9 @@ class MyDialogs {
                               .updateGroupDataInFireStoreIfNeeded()
                               .whenComplete(() {
                             // close bottom sheet
-                            Navigator.pop(context);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
                           });
                         },
                         child: const Text(

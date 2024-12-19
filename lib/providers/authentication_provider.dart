@@ -465,78 +465,78 @@ class AuthenticationProvider extends ChangeNotifier {
     });
   }
 
-  // get a list of friends
-  Future<List<UserModel>> getFriendsList(
-    String uid,
-    List<String> groupMembersUIDs,
-  ) async {
-    List<UserModel> friendsList = [];
+  // // get a list of friends
+  // Future<List<UserModel>> getFriendsList(
+  //   String uid,
+  //   List<String> groupMembersUIDs,
+  // ) async {
+  //   List<UserModel> friendsList = [];
 
-    DocumentSnapshot documentSnapshot =
-        await _firestore.collection(Constants.users).doc(uid).get();
+  //   DocumentSnapshot documentSnapshot =
+  //       await _firestore.collection(Constants.users).doc(uid).get();
 
-    List<dynamic> friendsUIDs = documentSnapshot.get(Constants.friendsUIDs);
+  //   List<dynamic> friendsUIDs = documentSnapshot.get(Constants.friendsUIDs);
 
-    for (String friendUID in friendsUIDs) {
-      // if groupMembersUIDs list is not empty and contains the friendUID we skip this friend
-      if (groupMembersUIDs.isNotEmpty && groupMembersUIDs.contains(friendUID)) {
-        continue;
-      }
-      DocumentSnapshot documentSnapshot =
-          await _firestore.collection(Constants.users).doc(friendUID).get();
-      UserModel friend =
-          UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
-      friendsList.add(friend);
-    }
+  //   for (String friendUID in friendsUIDs) {
+  //     // if groupMembersUIDs list is not empty and contains the friendUID we skip this friend
+  //     if (groupMembersUIDs.isNotEmpty && groupMembersUIDs.contains(friendUID)) {
+  //       continue;
+  //     }
+  //     DocumentSnapshot documentSnapshot =
+  //         await _firestore.collection(Constants.users).doc(friendUID).get();
+  //     UserModel friend =
+  //         UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
+  //     friendsList.add(friend);
+  //   }
 
-    return friendsList;
-  }
+  //   return friendsList;
+  // }
 
-  // get a list of friend requests
-  Future<List<UserModel>> getFriendRequestsList({
-    required String uid,
-    required String groupId,
-  }) async {
-    List<UserModel> friendRequestsList = [];
+  // // get a list of friend requests
+  // Future<List<UserModel>> getFriendRequestsList({
+  //   required String uid,
+  //   required String groupId,
+  // }) async {
+  //   List<UserModel> friendRequestsList = [];
 
-    if (groupId.isNotEmpty) {
-      DocumentSnapshot documentSnapshot =
-          await _firestore.collection(Constants.groups).doc(groupId).get();
+  //   if (groupId.isNotEmpty) {
+  //     DocumentSnapshot documentSnapshot =
+  //         await _firestore.collection(Constants.groups).doc(groupId).get();
 
-      List<dynamic> requestsUIDs =
-          documentSnapshot.get(Constants.awaitingApprovalUIDs);
+  //     List<dynamic> requestsUIDs =
+  //         documentSnapshot.get(Constants.awaitingApprovalUIDs);
 
-      for (String friendRequestUID in requestsUIDs) {
-        DocumentSnapshot documentSnapshot = await _firestore
-            .collection(Constants.users)
-            .doc(friendRequestUID)
-            .get();
-        UserModel friendRequest =
-            UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
-        friendRequestsList.add(friendRequest);
-      }
+  //     for (String friendRequestUID in requestsUIDs) {
+  //       DocumentSnapshot documentSnapshot = await _firestore
+  //           .collection(Constants.users)
+  //           .doc(friendRequestUID)
+  //           .get();
+  //       UserModel friendRequest =
+  //           UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
+  //       friendRequestsList.add(friendRequest);
+  //     }
 
-      return friendRequestsList;
-    }
+  //     return friendRequestsList;
+  //   }
 
-    DocumentSnapshot documentSnapshot =
-        await _firestore.collection(Constants.users).doc(uid).get();
+  //   DocumentSnapshot documentSnapshot =
+  //       await _firestore.collection(Constants.users).doc(uid).get();
 
-    List<dynamic> friendRequestsUIDs =
-        documentSnapshot.get(Constants.friendRequestsUIDs);
+  //   List<dynamic> friendRequestsUIDs =
+  //       documentSnapshot.get(Constants.friendRequestsUIDs);
 
-    for (String friendRequestUID in friendRequestsUIDs) {
-      DocumentSnapshot documentSnapshot = await _firestore
-          .collection(Constants.users)
-          .doc(friendRequestUID)
-          .get();
-      UserModel friendRequest =
-          UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
-      friendRequestsList.add(friendRequest);
-    }
+  //   for (String friendRequestUID in friendRequestsUIDs) {
+  //     DocumentSnapshot documentSnapshot = await _firestore
+  //         .collection(Constants.users)
+  //         .doc(friendRequestUID)
+  //         .get();
+  //     UserModel friendRequest =
+  //         UserModel.fromMap(documentSnapshot.data() as Map<String, dynamic>);
+  //     friendRequestsList.add(friendRequest);
+  //   }
 
-    return friendRequestsList;
-  }
+  //   return friendRequestsList;
+  // }
 
   // update image
   Future<String> updateImage({
