@@ -92,7 +92,7 @@ class MyDialogs {
       context: context,
       builder: (context) {
         return PopScope(
-          onPopInvokedWithResult: (bool didPop, dynamic result) async {
+          onPopInvoked: (bool didPop) async {
             if (!didPop) return;
             // Do something when the bottom sheet is closed.
             await context
@@ -123,7 +123,7 @@ class MyDialogs {
                               .read<GroupProvider>()
                               .updateGroupDataInFireStoreIfNeeded()
                               .whenComplete(() {
-                            // Close bottom sheet
+                            // close bottom sheet
                             Navigator.pop(context);
                           });
                         },

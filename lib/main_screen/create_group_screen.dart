@@ -215,70 +215,72 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 ],
               ),
 
-              // texField for group name
-              TextField(
-                controller: groupNameController,
-                maxLength: 25,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  hintText: 'Group Name',
-                  label: Text('Group Name'),
-                  counterText: '',
-                  border: OutlineInputBorder(),
-                ),
+            // texField for group name
+            TextField(
+              controller: groupNameController,
+              maxLength: 25,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                hintText: 'Group Name',
+                label: Text('Group Name'),
+                counterText: '',
+                border: OutlineInputBorder(),
               ),
-              // textField for group description
-              TextField(
-                controller: groupDescriptionController,
-                maxLength: 100,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  hintText: 'Group Description',
-                  label: Text('Group Description'),
-                  counterText: '',
-                  border: OutlineInputBorder(),
-                ),
+            ),
+            const SizedBox(height: 10),
+            // textField for group description
+            TextField(
+              controller: groupDescriptionController,
+              maxLength: 100,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                hintText: 'Group Description',
+                label: Text('Group Description'),
+                counterText: '',
+                border: OutlineInputBorder(),
               ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 8.0,
-                    right: 8.0,
-                  ),
-                  child: SettingsListTile(
-                      title: 'Group Settings',
-                      icon: Icons.settings,
-                      iconContainerColor: Colors.deepPurple,
-                      onTap: () {
-                        // navigate to group settings screen
-                        Navigator.pushNamed(
-                            context, Constants.groupSettingsScreen);
-                      }),
+            ),
+            const SizedBox(height: 10),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
                 ),
+                child: SettingsListTile(
+                    title: 'Group Settings',
+                    icon: Icons.settings,
+                    iconContainerColor: Colors.deepPurple,
+                    onTap: () {
+                      // navigate to group settings screen
+                      Navigator.pushNamed(
+                          context, Constants.groupSettingsScreen);
+                    }),
               ),
-              const Text(
-                'Select Group Members',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Select Group Members',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 10),
 
-              // Search bar
-              SearchBarWidget(
-                onChanged: (value) {
-                  context.read<SearchProvider>().setSearchQuery(value);
-                },
-              ),
+            // cuppertino search bar
+            CupertinoSearchTextField(
+              onChanged: (value) {},
+            ),
 
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: const FriendsList(
-                  viewType: FriendViewType.groupView,
-                ),
+            const SizedBox(height: 10),
+
+            const Expanded(
+              child: FriendsList(
+                viewType: FriendViewType.groupView,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
