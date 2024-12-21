@@ -1,4 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_pro/models/message_model.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_chat_pro/models/message_reply_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
+import 'package:flutter_chat_pro/streams/data_repository.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/align_message_left_widget.dart';
 import 'package:flutter_chat_pro/widgets/align_message_right_widget.dart';
@@ -211,173 +213,130 @@ class _ChatListState extends State<ChatList> {
   Widget build(BuildContext context) {
     // current user uid
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
-    return StreamBuilder<List<MessageModel>>(
-      stream: context.read<ChatProvider>().getMessagesStream(
-            userId: uid,
+    return FirestorePagination(
+      limit: 20,
+      isLive: true,
+      reverse: true,
+      controller: _scrollController,
+      query: DataRepository.getMessagesQuery(
+        userId: uid,
+        contactUID: widget.contactUID,
+        isGroup: widget.groupId.isNotEmpty,
+      ),
+      itemBuilder: (context, documentSnapshot, index) {
+        // Chat provider
+        final chatProvider = context.read<ChatProvider>();
+        // Get the message data at index
+        final message = MessageModel.fromMap(
+            documentSnapshot[index].data()! as Map<String, dynamic>);
+
+        // check if we sent the last message
+        final isMe = message.senderUID == uid;
+
+        // if the deletedBy contains the current user id then dont show the message
+        if (message.deletedBy.contains(uid)) {
+          return const SizedBox.shrink();
+        }
+
+        // check if its groupChat
+        if (widget.groupId.isNotEmpty) {
+          chatProvider.setMessageStatus(
+            currentUserId: uid,
             contactUID: widget.contactUID,
-            isGroup: widget.groupId,
-          ),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Center(
-            child: Text('Something went wrong'),
+            messageId: message.messageId,
+            isSeenByList: message.isSeenBy,
+            isGroupChat: widget.groupId.isNotEmpty,
           );
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        if (snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              'Start a conversation',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.openSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2),
-            ),
-          );
+        } else {
+          if (!message.isSeen && message.senderUID != uid) {
+            chatProvider.setMessageStatus(
+              currentUserId: uid,
+              contactUID: widget.contactUID,
+              messageId: message.messageId,
+              isSeenByList: message.isSeenBy,
+              isGroupChat: widget.groupId.isNotEmpty,
+            );
+          }
         }
 
-        // automatically scroll to the bottom on new message
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollController.animateTo(
-            _scrollController.position.minScrollExtent,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-          );
-        });
-        if (snapshot.hasData) {
-          final messagesList = snapshot.data!;
-          return GroupedListView<dynamic, DateTime>(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            reverse: true,
-            controller: _scrollController,
-            elements: messagesList,
-            groupBy: (element) {
-              return DateTime(
-                element.timeSent!.year,
-                element.timeSent!.month,
-                element.timeSent!.day,
-              );
-            },
-            groupHeaderBuilder: (dynamic groupedByValue) => SizedBox(
-                height: 40, child: GlobalMethods.buildDateTime(groupedByValue)),
-            itemBuilder: (context, dynamic element) {
-              final message = element as MessageModel;
-
-              // check if ita groupChat
-              if (widget.groupId.isNotEmpty) {
-                context.read<ChatProvider>().setMessageStatus(
-                      currentUserId: uid,
-                      contactUID: widget.contactUID,
-                      messageId: message.messageId,
-                      isSeenByList: message.isSeenBy,
-                      isGroupChat: widget.groupId.isNotEmpty,
-                    );
-              } else {
-                if (!message.isSeen && message.senderUID != uid) {
-                  context.read<ChatProvider>().setMessageStatus(
-                        currentUserId: uid,
-                        contactUID: widget.contactUID,
-                        messageId: message.messageId,
-                        isSeenByList: message.isSeenBy,
-                        isGroupChat: widget.groupId.isNotEmpty,
-                      );
-                }
-              }
-
-              // check if we sent the last message
-              final isMe = element.senderUID == uid;
-              // if the deletedBy contains the current user id then dont show the message
-              bool deletedByCurrentUser = message.deletedBy.contains(uid);
-              return deletedByCurrentUser
-                  ? const SizedBox.shrink()
-                  : GestureDetector(
-                      onLongPress: () async {
-                        Navigator.of(context).push(
-                          HeroDialogRoute(builder: (context) {
-                            return ReactionsDialogWidget(
-                              id: element.messageId,
-                              messageWidget: isMe
-                                  ? AlignMessageRightWidget(
-                                      message: message,
-                                      viewOnly: true,
-                                      isGroupChat: widget.groupId.isNotEmpty,
-                                    )
-                                  : AlignMessageLeftWidget(
-                                      message: message,
-                                      viewOnly: true,
-                                      isGroupChat: widget.groupId.isNotEmpty,
-                                    ),
-                              onReactionTap: (reaction) {
-                                if (reaction == '➕') {
-                                  showEmojiContainer(
-                                    messageId: element.messageId,
-                                  );
-                                } else {
-                                  sendReactionToMessage(
-                                    reaction: reaction,
-                                    messageId: element.messageId,
-                                  );
-                                }
-                              },
-                              onContextMenuTap: (item) {
-                                onContextMenyClicked(
-                                  item: item.label,
-                                  message: message,
-                                );
-                              },
-                              widgetAlignment: isMe
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                            );
-                          }),
-                        );
-                      },
-                      child: Hero(
-                        tag: element.messageId,
-                        child: MessageWidget(
-                          message: element,
-                          onRightSwipe: () {
-                            // set the message reply to true
-                            final messageReply = MessageReplyModel(
-                              message: element.message,
-                              senderUID: element.senderUID,
-                              senderName: element.senderName,
-                              senderImage: element.senderImage,
-                              messageType: element.messageType,
-                              isMe: isMe,
-                            );
-
-                            context
-                                .read<ChatProvider>()
-                                .setMessageReplyModel(messageReply);
-                          },
-                          isMe: isMe,
+        return GestureDetector(
+          onLongPress: () async {
+            Navigator.of(context).push(
+              HeroDialogRoute(builder: (context) {
+                return ReactionsDialogWidget(
+                  id: message.messageId,
+                  messageWidget: isMe
+                      ? AlignMessageRightWidget(
+                          message: message,
+                          viewOnly: true,
+                          isGroupChat: widget.groupId.isNotEmpty,
+                        )
+                      : AlignMessageLeftWidget(
+                          message: message,
+                          viewOnly: true,
                           isGroupChat: widget.groupId.isNotEmpty,
                         ),
-                      ),
+                  onReactionTap: (reaction) {
+                    if (reaction == '➕') {
+                      showEmojiContainer(
+                        messageId: message.messageId,
+                      );
+                    } else {
+                      sendReactionToMessage(
+                        reaction: reaction,
+                        messageId: message.messageId,
+                      );
+                    }
+                  },
+                  onContextMenuTap: (item) {
+                    onContextMenyClicked(
+                      item: item.label,
+                      message: message,
                     );
-            },
-            groupComparator: (value1, value2) => value2.compareTo(value1),
-            itemComparator: (item1, item2) {
-              var firstItem = item1.timeSent;
+                  },
+                  widgetAlignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                );
+              }),
+            );
+          },
+          child: Hero(
+            tag: message.messageId,
+            child: MessageWidget(
+              message: message,
+              onRightSwipe: () {
+                // set the message reply to true
+                final messageReply = MessageReplyModel(
+                  message: message.message,
+                  senderUID: message.senderUID,
+                  senderName: message.senderName,
+                  senderImage: message.senderImage,
+                  messageType: message.messageType,
+                  isMe: isMe,
+                );
 
-              var secondItem = item2.timeSent;
-
-              return secondItem!.compareTo(firstItem!);
-            }, // optional
-            useStickyGroupSeparators: true, // optional
-            floatingHeader: true, // optional
-            order: GroupedListOrder.ASC, // optional
-          );
-        }
-        return const SizedBox.shrink();
+                context.read<ChatProvider>().setMessageReplyModel(messageReply);
+              },
+              isMe: isMe,
+              isGroupChat: widget.groupId.isNotEmpty,
+            ),
+          ),
+        );
       },
+      initialLoader: const Center(
+        child: CircularProgressIndicator(),
+      ),
+      onEmpty: Center(
+        child: Text(
+          'Start a conversation',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.openSans(
+              fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
+      ),
+      bottomLoader: const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }

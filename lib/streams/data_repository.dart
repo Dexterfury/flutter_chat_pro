@@ -104,4 +104,30 @@ class DataRepository {
 
     return [];
   }
+
+  // Get messages query
+  static Query getMessagesQuery({
+    required String userId,
+    required String contactUID,
+    required bool isGroup,
+  }) {
+    Query query;
+    if (isGroup) {
+      query = _firestore
+          .collection(Constants.groups)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .orderBy(Constants.timeSent, descending: true);
+      return query;
+    } else {
+      query = _firestore
+          .collection(Constants.users)
+          .doc(userId)
+          .collection(Constants.chats)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .orderBy(Constants.timeSent, descending: true);
+      return query;
+    }
+  }
 }
