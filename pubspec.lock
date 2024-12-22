@@ -466,10 +466,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_reactions
-      sha256: "20dfb534d9939112098d7aa540476352afba67eefb7d06aac131fb2670360f07"
+      sha256: "1151ecce4a499f6b55babf870b19b0b19a48a003b004f21263b0747b765a17f7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.1.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -552,14 +552,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
-  grouped_list:
-    dependency: "direct main"
-    description:
-      name: grouped_list
-      sha256: fef106470186081c32636aa055492eee7fc7fe8bf0921a48d31ded24821af19f
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.2"
   http:
     dependency: transitive
     description:

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +15,7 @@ import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -340,5 +340,27 @@ class GlobalMethods {
         });
       },
     );
+  }
+
+  // is same day
+  static bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  // format date
+  static String formatDateHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+
+    if (isSameDay(date, today)) {
+      return 'Today';
+    } else if (isSameDay(date, yesterday)) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMMM d, y').format(date);
+    }
   }
 }

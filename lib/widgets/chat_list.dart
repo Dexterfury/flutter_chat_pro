@@ -9,13 +9,14 @@ import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/streams/data_repository.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/align_message_left_widget.dart';
 import 'package:flutter_chat_pro/widgets/align_message_right_widget.dart';
+import 'package:flutter_chat_pro/widgets/date_widget.dart';
 import 'package:flutter_chat_pro/widgets/message_widget.dart';
 import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
 import 'package:flutter_chat_reactions/utilities/hero_dialog_route.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:provider/provider.dart';
 
 class ChatList extends StatefulWidget {
@@ -100,80 +101,14 @@ class _ChatListState extends State<ChatList> {
     required String currentUserId,
     required bool isSenderOrAdmin,
   }) {
-    showModalBottomSheet(
-        context: context,
-        isDismissible: false,
-        builder: (context) {
-          return Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) {
-            return SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20.0,
-                  horizontal: 20.0,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (chatProvider.isLoading) const LinearProgressIndicator(),
-                    ListTile(
-                      leading: const Icon(Icons.delete),
-                      title: const Text('Delete for me'),
-                      onTap: chatProvider.isLoading
-                          ? null
-                          : () async {
-                              await chatProvider
-                                  .deleteMessage(
-                                currentUserId: currentUserId,
-                                contactUID: widget.contactUID,
-                                messageId: message.messageId,
-                                messageType: message.messageType.name,
-                                isGroupChat: widget.groupId.isNotEmpty,
-                                deleteForEveryone: false,
-                              )
-                                  .whenComplete(() {
-                                Navigator.pop(context);
-                              });
-                            },
-                    ),
-                    isSenderOrAdmin
-                        ? ListTile(
-                            leading: const Icon(Icons.delete_forever),
-                            title: const Text('Delete for everyone'),
-                            onTap: chatProvider.isLoading
-                                ? null
-                                : () async {
-                                    await chatProvider
-                                        .deleteMessage(
-                                      currentUserId: currentUserId,
-                                      contactUID: widget.contactUID,
-                                      messageId: message.messageId,
-                                      messageType: message.messageType.name,
-                                      isGroupChat: widget.groupId.isNotEmpty,
-                                      deleteForEveryone: true,
-                                    )
-                                        .whenComplete(() {
-                                      Navigator.pop(context);
-                                    });
-                                  },
-                          )
-                        : const SizedBox.shrink(),
-                    ListTile(
-                      leading: const Icon(Icons.cancel),
-                      title: const Text('cancel'),
-                      onTap: chatProvider.isLoading
-                          ? null
-                          : () {
-                              Navigator.pop(context);
-                            },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          });
-        });
+    MyDialogs.deletionBottomSheet(
+      context: context,
+      message: message,
+      currentUserId: currentUserId,
+      isSenderOrAdmin: isSenderOrAdmin,
+      contactUID: widget.contactUID,
+      groupId: widget.groupId,
+    );
   }
 
   void sendReactionToMessage(
@@ -238,6 +173,23 @@ class _ChatListState extends State<ChatList> {
           return const SizedBox.shrink();
         }
 
+        // Date header logic here
+        Widget? dateHeader;
+        if (index < documentSnapshot.length - 1) {
+          final nextMessage = MessageModel.fromMap(
+            documentSnapshot[index + 1].data()! as Map<String, dynamic>,
+          );
+
+          if (!GlobalMethods.isSameDay(
+            message.timeSent,
+            nextMessage.timeSent,
+          )) {
+            dateHeader = DateWidget(message: message);
+          }
+        } else if (index == documentSnapshot.length - 1) {
+          dateHeader = DateWidget(message: message);
+        }
+
         // check if its groupChat
         if (widget.groupId.isNotEmpty) {
           chatProvider.setMessageStatus(
@@ -259,68 +211,75 @@ class _ChatListState extends State<ChatList> {
           }
         }
 
-        return GestureDetector(
-          onLongPress: () async {
-            Navigator.of(context).push(
-              HeroDialogRoute(builder: (context) {
-                return ReactionsDialogWidget(
-                  id: message.messageId,
-                  messageWidget: isMe
-                      ? AlignMessageRightWidget(
+        return Column(
+          children: [
+            if (dateHeader != null) dateHeader,
+            GestureDetector(
+              onLongPress: () async {
+                Navigator.of(context).push(
+                  HeroDialogRoute(builder: (context) {
+                    return ReactionsDialogWidget(
+                      id: message.messageId,
+                      messageWidget: isMe
+                          ? AlignMessageRightWidget(
+                              message: message,
+                              viewOnly: true,
+                              isGroupChat: widget.groupId.isNotEmpty,
+                            )
+                          : AlignMessageLeftWidget(
+                              message: message,
+                              viewOnly: true,
+                              isGroupChat: widget.groupId.isNotEmpty,
+                            ),
+                      onReactionTap: (reaction) {
+                        if (reaction == '➕') {
+                          showEmojiContainer(
+                            messageId: message.messageId,
+                          );
+                        } else {
+                          sendReactionToMessage(
+                            reaction: reaction,
+                            messageId: message.messageId,
+                          );
+                        }
+                      },
+                      onContextMenuTap: (item) {
+                        onContextMenyClicked(
+                          item: item.label,
                           message: message,
-                          viewOnly: true,
-                          isGroupChat: widget.groupId.isNotEmpty,
-                        )
-                      : AlignMessageLeftWidget(
-                          message: message,
-                          viewOnly: true,
-                          isGroupChat: widget.groupId.isNotEmpty,
-                        ),
-                  onReactionTap: (reaction) {
-                    if (reaction == '➕') {
-                      showEmojiContainer(
-                        messageId: message.messageId,
-                      );
-                    } else {
-                      sendReactionToMessage(
-                        reaction: reaction,
-                        messageId: message.messageId,
-                      );
-                    }
-                  },
-                  onContextMenuTap: (item) {
-                    onContextMenyClicked(
-                      item: item.label,
-                      message: message,
+                        );
+                      },
+                      widgetAlignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
                     );
-                  },
-                  widgetAlignment:
-                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  }),
                 );
-              }),
-            );
-          },
-          child: Hero(
-            tag: message.messageId,
-            child: MessageWidget(
-              message: message,
-              onRightSwipe: () {
-                // set the message reply to true
-                final messageReply = MessageReplyModel(
-                  message: message.message,
-                  senderUID: message.senderUID,
-                  senderName: message.senderName,
-                  senderImage: message.senderImage,
-                  messageType: message.messageType,
-                  isMe: isMe,
-                );
-
-                context.read<ChatProvider>().setMessageReplyModel(messageReply);
               },
-              isMe: isMe,
-              isGroupChat: widget.groupId.isNotEmpty,
+              child: Hero(
+                tag: message.messageId,
+                child: MessageWidget(
+                  message: message,
+                  onRightSwipe: () {
+                    // set the message reply to true
+                    final messageReply = MessageReplyModel(
+                      message: message.message,
+                      senderUID: message.senderUID,
+                      senderName: message.senderName,
+                      senderImage: message.senderImage,
+                      messageType: message.messageType,
+                      isMe: isMe,
+                    );
+
+                    context
+                        .read<ChatProvider>()
+                        .setMessageReplyModel(messageReply);
+                  },
+                  isMe: isMe,
+                  isGroupChat: widget.groupId.isNotEmpty,
+                ),
+              ),
             ),
-          ),
+          ],
         );
       },
       initialLoader: const Center(

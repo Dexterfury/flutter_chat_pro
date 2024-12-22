@@ -50,7 +50,6 @@ dependencies:
   image_cropper: ^7.0.4
   uuid: ^4.2.2
   date_format: ^2.0.7
-  grouped_list: ^5.1.2
   swipe_to: ^1.0.5
   timeago: ^3.6.0
   cached_network_image: ^3.3.1
@@ -61,7 +60,7 @@ dependencies:
   cached_video_player: ^2.0.4
   emoji_picker_flutter: ^2.2.0
   animate_do: ^3.1.2
-  flutter_chat_reactions: ^0.1.0
+  flutter_chat_reactions: ^0.1.1
   firebase_messaging: ^15.0.0
   flutter_local_notifications: ^17.2.3
   open_settings: ^2.0.2
