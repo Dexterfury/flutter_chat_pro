@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
+import 'package:flutter_chat_pro/models/message_model.dart';
+import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/providers/search_provider.dart';
 import 'package:flutter_chat_pro/widgets/friends_list.dart';
@@ -154,6 +156,95 @@ class MyDialogs {
             ),
           ),
         );
+      },
+    );
+  }
+
+  // Deletion bottom sheet
+  static void deletionBottomSheet({
+    required BuildContext context,
+    required MessageModel message,
+    required String currentUserId,
+    required bool isSenderOrAdmin,
+    required String contactUID,
+    required String groupId,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      builder: (context) {
+        return Consumer<ChatProvider>(builder: (context, chatProvider, child) {
+          return SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 20.0,
+                horizontal: 20.0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (chatProvider.isLoading) const LinearProgressIndicator(),
+                  ListTile(
+                    leading: const Icon(Icons.delete),
+                    title: const Text('Delete for me'),
+                    onTap: chatProvider.isLoading
+                        ? null
+                        : () async {
+                            await chatProvider
+                                .deleteMessage(
+                              currentUserId: currentUserId,
+                              contactUID: contactUID,
+                              messageId: message.messageId,
+                              messageType: message.messageType.name,
+                              isGroupChat: groupId.isNotEmpty,
+                              deleteForEveryone: false,
+                            )
+                                .whenComplete(() {
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            });
+                          },
+                  ),
+                  isSenderOrAdmin
+                      ? ListTile(
+                          leading: const Icon(Icons.delete_forever),
+                          title: const Text('Delete for everyone'),
+                          onTap: chatProvider.isLoading
+                              ? null
+                              : () async {
+                                  await chatProvider
+                                      .deleteMessage(
+                                    currentUserId: currentUserId,
+                                    contactUID: contactUID,
+                                    messageId: message.messageId,
+                                    messageType: message.messageType.name,
+                                    isGroupChat: groupId.isNotEmpty,
+                                    deleteForEveryone: true,
+                                  )
+                                      .whenComplete(() {
+                                    if (context.mounted) {
+                                      Navigator.pop(context);
+                                    }
+                                  });
+                                },
+                        )
+                      : const SizedBox.shrink(),
+                  ListTile(
+                    leading: const Icon(Icons.cancel),
+                    title: const Text('cancel'),
+                    onTap: chatProvider.isLoading
+                        ? null
+                        : () {
+                            Navigator.pop(context);
+                          },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
       },
     );
   }
