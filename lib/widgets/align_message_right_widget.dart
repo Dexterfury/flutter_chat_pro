@@ -82,11 +82,12 @@ class AlignMessageRightWidget extends StatelessWidget {
                           MessageReplyPreview(
                             message: message,
                             viewOnly: viewOnly,
+                            isGroupChat: isGroupChat,
                           )
                         ],
                         DisplayMessageType(
-                          message: message.message,
-                          type: message.messageType,
+                          message: message,
+                          isGroupChat: isGroupChat,
                           color: Colors.white,
                           isReply: false,
                           viewOnly: viewOnly,

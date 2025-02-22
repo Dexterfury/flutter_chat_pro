@@ -14,11 +14,13 @@ class MessageReplyPreview extends StatelessWidget {
     this.replyMessageModel,
     this.message,
     this.viewOnly = false,
+    required this.isGroupChat,
   });
 
   final MessageReplyModel? replyMessageModel;
   final MessageModel? message;
   final bool viewOnly;
+  final bool isGroupChat;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +102,24 @@ class MessageReplyPreview extends StatelessWidget {
                 message: replyMessageModel!.message,
               )
             : DisplayMessageType(
-                message: message!.repliedMessage,
-                type: message!.repliedMessageType,
+                message: MessageModel(
+                  senderUID: '',
+                  senderName: '',
+                  senderImage: '',
+                  contactUID: '',
+                  message: message!.repliedMessage,
+                  messageType: message!.repliedMessageType,
+                  timeSent: DateTime.now(),
+                  messageId: '',
+                  isSeen: false,
+                  repliedMessage: '',
+                  repliedTo: '',
+                  repliedMessageType: MessageEnum.text,
+                  reactions: [],
+                  isSeenBy: [],
+                  deletedBy: [],
+                ),
+                isGroupChat: isGroupChat,
                 color: Colors.white,
                 isReply: true,
                 maxLines: 1,

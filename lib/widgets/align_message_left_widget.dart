@@ -75,11 +75,12 @@ class AlignMessageLeftWidget extends StatelessWidget {
                               MessageReplyPreview(
                                 message: message,
                                 viewOnly: viewOnly,
+                                isGroupChat: isGroupChat,
                               )
                             ],
                             DisplayMessageType(
-                              message: message.message,
-                              type: message.messageType,
+                              message: message,
+                              isGroupChat: isGroupChat,
                               color: isDarkMode ? Colors.white : Colors.black,
                               isReply: false,
                               viewOnly: viewOnly,

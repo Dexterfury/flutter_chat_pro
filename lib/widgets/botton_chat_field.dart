@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/enums/enums.dart';
+import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/providers/chat_provider.dart';
 import 'package:flutter_chat_pro/providers/group_provider.dart';
@@ -12,6 +14,9 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_chat_pro/widgets/mention_popup.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 class BottomChatField extends StatefulWidget {
   const BottomChatField({
@@ -42,6 +47,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
   bool isShowSendButton = false;
   bool isSendingAudio = false;
   bool isShowEmojiPicker = false;
+
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+  List<UserModel> _groupMembers = [];
 
   // hide emoji container
   void hideEmojiContainer() {
@@ -84,6 +93,9 @@ class _BottomChatFieldState extends State<BottomChatField> {
     _soundRecord = FlutterSoundRecord();
     _focusNode = FocusNode();
     super.initState();
+    if (widget.groupId.isNotEmpty) {
+      _loadGroupMembers();
+    }
   }
 
   @override
@@ -91,7 +103,84 @@ class _BottomChatFieldState extends State<BottomChatField> {
     _textEditingController.dispose();
     _soundRecord?.dispose();
     _focusNode.dispose();
+    _hideMentionPopup();
     super.dispose();
+  }
+
+  Future<void> _loadGroupMembers() async {
+    final groupDoc = await FirebaseFirestore.instance
+        .collection(Constants.groups)
+        .doc(widget.groupId)
+        .get();
+
+    final memberIds =
+        List<String>.from(groupDoc.data()![Constants.membersUIDs]);
+    final membersData = await Future.wait(
+      memberIds.map((uid) => FirebaseFirestore.instance
+          .collection(Constants.users)
+          .doc(uid)
+          .get()),
+    );
+
+    setState(() {
+      _groupMembers =
+          membersData.map((doc) => UserModel.fromMap(doc.data()!)).toList();
+    });
+  }
+
+  void _showMentionPopup() {
+    _overlayEntry?.remove();
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideMentionPopup() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx,
+        top: offset.dy - 200, // Position above the text field
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0.0, -200.0),
+          child: MentionPopup(
+            users: _groupMembers,
+            onUserSelected: (user) {
+              final cursorPos = _textEditingController.selection.base.offset;
+              final text = _textEditingController.text;
+              // Clean up the username by removing spaces and @ signs
+              final cleanUsername = user.name.replaceAll(RegExp(r'[@\s]'), '');
+
+              final newText = text.replaceRange(
+                text.lastIndexOf('@', cursorPos),
+                cursorPos,
+                '@$cleanUsername',
+              );
+
+              _textEditingController.value = TextEditingValue(
+                text: newText,
+                selection: TextSelection.collapsed(
+                  offset: text.lastIndexOf('@', cursorPos) +
+                      cleanUsername.length +
+                      1,
+                ),
+              );
+
+              _hideMentionPopup();
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   // check microphone permission
@@ -334,6 +423,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                   isMessageReply
                       ? MessageReplyPreview(
                           replyMessageModel: messageReply,
+                          isGroupChat: widget.groupId.isNotEmpty,
                         )
                       : const SizedBox.shrink(),
                   Row(
@@ -392,26 +482,34 @@ class _BottomChatFieldState extends State<BottomChatField> {
                         icon: const Icon(Icons.attachment),
                       ),
                       Expanded(
-                        child: TextFormField(
-                          controller: _textEditingController,
-                          focusNode: _focusNode,
-                          decoration: const InputDecoration.collapsed(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(30),
-                              ),
-                              borderSide: BorderSide.none,
+                        child: CompositedTransformTarget(
+                          link: _layerLink,
+                          child: TextFormField(
+                            controller: _textEditingController,
+                            focusNode: _focusNode,
+                            decoration: const InputDecoration.collapsed(
+                              hintText: 'Type a message',
                             ),
-                            hintText: 'Type a message',
+                            onChanged: (value) {
+                              setState(() {
+                                isShowSendButton = value.isNotEmpty;
+                              });
+
+                              if (widget.groupId.isNotEmpty) {
+                                final cursorPos = _textEditingController
+                                    .selection.base.offset;
+                                if (cursorPos > 0 &&
+                                    value[cursorPos - 1] == '@') {
+                                  _showMentionPopup();
+                                } else {
+                                  _hideMentionPopup();
+                                }
+                              }
+                            },
+                            onTap: () {
+                              hideEmojiContainer();
+                            },
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              isShowSendButton = value.isNotEmpty;
-                            });
-                          },
-                          onTap: () {
-                            hideEmojiContainer();
-                          },
                         ),
                       ),
                       chatProvider.isLoading
