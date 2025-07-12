@@ -96,9 +96,7 @@ class _HomeScreenState extends State<HomeScreen>
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (message.notification != null) {
           // update app badge
-          if (_appBadgeSupported) {
-            FlutterAppBadger.updateBadgeCount(1);
-          }
+          FlutterNewBadger.incrementBadgeCount();
           NotificationServices.displayNotification(message);
         }
       });

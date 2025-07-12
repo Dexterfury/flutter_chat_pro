@@ -121,13 +121,17 @@ class AlignMessageRightWidget extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 4,
-              right: 30,
-              child: StackedReactions(
-                reactions: messageReations,
-              ),
-            )
+            if (message.reactions.isNotEmpty)
+              Positioned(
+                bottom: 4,
+                right: 30,
+                child: StackedReactions(
+                  messageId: message.messageId,
+                  controller: controller,
+                  maxReactionsToShow: 3,
+                  //reactionBackgroundColor: Colors.white,
+                ),
+              )
           ],
         ),
       ),
