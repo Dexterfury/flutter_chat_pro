@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/widgets/display_message_type.dart';
 import 'package:flutter_chat_pro/widgets/message_reply_preview.dart';
-import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
+import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
 import 'package:provider/provider.dart';
 
 class AlignMessageRightWidget extends StatelessWidget {
@@ -14,11 +14,13 @@ class AlignMessageRightWidget extends StatelessWidget {
     required this.message,
     this.viewOnly = false,
     required this.isGroupChat,
+    required this.controller,
   });
 
   final MessageModel message;
   final bool viewOnly;
   final bool isGroupChat;
+  final ReactionsController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +125,9 @@ class AlignMessageRightWidget extends StatelessWidget {
               bottom: 4,
               right: 30,
               child: StackedReactions(
-                reactions: messageReations,
+                messageId: message.messageId,
+                controller: controller,
+                maxReactionsToShow: 3,
               ),
             )
           ],
