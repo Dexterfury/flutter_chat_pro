@@ -36,35 +36,33 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   adaptive_theme: ^3.4.1
-  firebase_core: ^3.0.0
-  firebase_auth: ^5.0.0
-  firebase_storage: ^12.0.0
-  cloud_firestore: ^5.0.0
+  firebase_core: ^3.15.1
+  firebase_auth: ^5.6.2
+  firebase_storage: ^12.4.9
+  cloud_firestore: ^5.6.11
   country_picker: ^2.0.23
   provider: ^6.1.1
   lottie: ^3.1.2
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
   pinput: ^5.0.0
   google_fonts: ^6.1.0
   image_picker: ^1.0.5
-  image_cropper: ^7.0.4
+  image_cropper: ^9.1.0
   uuid: ^4.2.2
   date_format: ^2.0.7
   swipe_to: ^1.0.5
   timeago: ^3.6.0
   cached_network_image: ^3.3.1
   flutter_sound_record: ^3.3.2
-  permission_handler: ^11.1.0
-  audioplayers: ^6.0.0
+  permission_handler: ^12.0.1
+  audioplayers: ^6.5.0
   path_provider: ^2.1.2
-  cached_video_player: ^2.0.4
-  emoji_picker_flutter: ^2.2.0
-  animate_do: ^3.1.2
-  flutter_chat_reactions: ^0.1.1
+  cached_video_player_plus: ^3.0.3
+  flutter_chat_reactions: ^0.2.6
   firebase_messaging: ^15.0.0
-  flutter_local_notifications: ^17.2.3
-  open_settings: ^2.0.2
-  flutter_app_badger: ^1.5.0
+  flutter_local_notifications: ^19.3.0
+  open_settings_plus: ^0.4.0
+  flutter_new_badger: ^1.1.1
   firebase_pagination: ^4.0.1
 
 dev_dependencies:
@@ -76,7 +74,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

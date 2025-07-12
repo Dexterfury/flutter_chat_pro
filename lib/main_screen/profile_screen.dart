@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/models/user_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
-import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
 import 'package:flutter_chat_pro/widgets/my_app_bar.dart';
 import 'package:flutter_chat_pro/widgets/info_details_card.dart';
 import 'package:flutter_chat_pro/widgets/settings_list_tile.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:open_settings_plus/core/open_settings_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:open_settings/open_settings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -140,10 +139,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           title: 'Notifications',
                                           icon: Icons.notifications,
                                           iconContainerColor: Colors.red,
-                                          onTap: () {
+                                          onTap: () async {
                                             // navigate to account settings
-                                            OpenSettings
-                                                .openAppNotificationSetting();
+                                            final settings =
+                                                OpenSettingsPlusAndroid();
+
+                                            await settings
+                                                .applicationNotification();
                                           },
                                         ),
                                       ],

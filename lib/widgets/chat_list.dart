@@ -1,4 +1,5 @@
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'dart:developer';
+
 import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,12 +11,9 @@ import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/streams/data_repository.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/utilities/my_dialogs.dart';
-import 'package:flutter_chat_pro/widgets/align_message_left_widget.dart';
-import 'package:flutter_chat_pro/widgets/align_message_right_widget.dart';
 import 'package:flutter_chat_pro/widgets/date_widget.dart';
 import 'package:flutter_chat_pro/widgets/message_widget.dart';
 import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
-import 'package:flutter_chat_reactions/utilities/hero_dialog_route.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -36,11 +34,51 @@ class ChatList extends StatefulWidget {
 class _ChatListState extends State<ChatList> {
   // scroll controller
   final ScrollController _scrollController = ScrollController();
+  ReactionsController _controller = ReactionsController(currentUserId: '');
+
+  @override
+  void initState() {
+    super.initState();
+    setController();
+  }
+
+  // Set controller
+  void setController() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final userId = context.read<AuthenticationProvider>().userModel!.uid;
+      _controller = ReactionsController(currentUserId: userId);
+    });
+  }
 
   @override
   void dispose() {
     if (_scrollController.hasClients) _scrollController.dispose();
+    _controller.dispose();
     super.dispose();
+  }
+
+  // Load reactions from firestore
+  void _loadReactionsFromFirestore(MessageModel message) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (message.reactions.isNotEmpty) {
+        final reactions = message.reactions
+            .map((reactionString) {
+              final parts = reactionString.split('=');
+              if (parts.length == 2) {
+                return Reaction(
+                  emoji: parts[1],
+                  userId: parts[0],
+                  timestamp: DateTime.now(),
+                );
+              }
+              return null;
+            })
+            .where((reaction) => reaction != null)
+            .cast<Reaction>()
+            .toList();
+        _controller.loadReactions(message.messageId, reactions);
+      }
+    });
   }
 
   void onContextMenyClicked(
@@ -112,10 +150,38 @@ class _ChatListState extends State<ChatList> {
     );
   }
 
-  void sendReactionToMessage(
-      {required String reaction, required String messageId}) {
+  void sendReactionToMessage({
+    required String reaction,
+    required String messageId,
+    required MessageModel message,
+  }) {
     // get the sender uid
     final senderUID = context.read<AuthenticationProvider>().userModel!.uid;
+
+    // Get current reactions from the actual message data, not from controller
+    final currentReactions = message.reactions;
+
+    // Check if the user already reacted with this specific emoji
+    final hasReactedWithSameEmoji =
+        currentReactions.any((r) => r == '$senderUID=$reaction');
+
+    // Find any existing reaction from this user (regardless of emoji)
+    final userExistingReaction = currentReactions
+        .firstWhere((r) => r.startsWith('$senderUID='), orElse: () => '');
+
+    List<String> updatedReactions = List.from(currentReactions);
+
+    if (hasReactedWithSameEmoji) {
+      // User clicked the same reaction they already have - remove it
+      updatedReactions.removeWhere((r) => r == '$senderUID=$reaction');
+    } else if (userExistingReaction.isNotEmpty) {
+      // User has a different reaction - replace it with the new one
+      updatedReactions.removeWhere((r) => r.startsWith('$senderUID='));
+      updatedReactions.add('$senderUID=$reaction');
+    } else {
+      // User has no reaction - add the new one
+      updatedReactions.add('$senderUID=$reaction');
+    }
 
     context.read<ChatProvider>().sendReactionToMessage(
           senderUID: senderUID,
@@ -123,26 +189,8 @@ class _ChatListState extends State<ChatList> {
           messageId: messageId,
           reaction: reaction,
           groupId: widget.groupId.isNotEmpty,
+          updatedReactions: updatedReactions,
         );
-  }
-
-  void showEmojiContainer({required String messageId}) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SizedBox(
-        height: 300,
-        child: EmojiPicker(
-          onEmojiSelected: (category, emoji) {
-            Navigator.pop(context);
-            // add emoji to message
-            sendReactionToMessage(
-              reaction: emoji.emoji,
-              messageId: messageId,
-            );
-          },
-        ),
-      ),
-    );
   }
 
   @override
@@ -212,72 +260,75 @@ class _ChatListState extends State<ChatList> {
           }
         }
 
+        _loadReactionsFromFirestore(message);
+
+        const config = ChatReactionsConfig(
+          enableHapticFeedback: true,
+          maxReactionsToShow: 3,
+          enableDoubleTap: true,
+          //showContextMenu: false
+        );
+
         return Column(
           children: [
             if (dateHeader != null) dateHeader,
-            GestureDetector(
-              onLongPress: () async {
-                Navigator.of(context).push(
-                  HeroDialogRoute(builder: (context) {
-                    return ReactionsDialogWidget(
-                      id: message.messageId,
-                      messageWidget: isMe
-                          ? AlignMessageRightWidget(
-                              message: message,
-                              viewOnly: true,
-                              isGroupChat: widget.groupId.isNotEmpty,
-                            )
-                          : AlignMessageLeftWidget(
-                              message: message,
-                              viewOnly: true,
-                              isGroupChat: widget.groupId.isNotEmpty,
-                            ),
-                      onReactionTap: (reaction) {
-                        if (reaction == '➕') {
-                          showEmojiContainer(
-                            messageId: message.messageId,
-                          );
-                        } else {
-                          sendReactionToMessage(
-                            reaction: reaction,
-                            messageId: message.messageId,
-                          );
-                        }
-                      },
-                      onContextMenuTap: (item) {
-                        onContextMenyClicked(
-                          item: item.label,
-                          message: message,
-                        );
-                      },
-                      widgetAlignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
-                    );
-                  }),
+            ChatMessageWrapper(
+              messageId: message.messageId,
+              controller: _controller,
+              config: config,
+              onReactionAdded: (reaction) {
+                // Update the controller
+                _controller.toggleReaction(
+                  message.messageId,
+                  reaction,
+                );
+
+                sendReactionToMessage(
+                  reaction: reaction,
+                  messageId: message.messageId,
+                  message: message,
                 );
               },
-              child: Hero(
-                tag: message.messageId,
-                child: MessageWidget(
-                  message: message,
-                  onRightSwipe: () {
-                    // set the message reply to true
-                    final messageReply = MessageReplyModel(
-                      message: message.message,
-                      senderUID: message.senderUID,
-                      senderName: message.senderName,
-                      senderImage: message.senderImage,
-                      messageType: message.messageType,
-                      isMe: isMe,
-                    );
+              onReactionRemoved: (reaction) {
+                // Update the controller
+                _controller.toggleReaction(
+                  message.messageId,
+                  reaction,
+                );
 
-                    context
-                        .read<ChatProvider>()
-                        .setMessageReplyModel(messageReply);
-                  },
-                  isMe: isMe,
-                  isGroupChat: widget.groupId.isNotEmpty,
-                ),
+                sendReactionToMessage(
+                  reaction: reaction,
+                  messageId: message.messageId,
+                  message: message,
+                );
+              },
+              onMenuItemTapped: (item) {
+                onContextMenyClicked(
+                  item: item.label,
+                  message: message,
+                );
+              },
+              alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+              child: MessageWidget(
+                message: message,
+                controller: _controller,
+                onRightSwipe: () {
+                  // set the message reply to true
+                  final messageReply = MessageReplyModel(
+                    message: message.message,
+                    senderUID: message.senderUID,
+                    senderName: message.senderName,
+                    senderImage: message.senderImage,
+                    messageType: message.messageType,
+                    isMe: isMe,
+                  );
+
+                  context
+                      .read<ChatProvider>()
+                      .setMessageReplyModel(messageReply);
+                },
+                isMe: isMe,
+                isGroupChat: widget.groupId.isNotEmpty,
               ),
             ),
           ],

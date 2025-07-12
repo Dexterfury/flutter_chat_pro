@@ -1,11 +1,7 @@
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_chat_pro/constants.dart';
 import 'package:flutter_chat_pro/main_screen/create_group_screen.dart';
 import 'package:flutter_chat_pro/main_screen/my_chats_screen.dart';
@@ -16,6 +12,7 @@ import 'package:flutter_chat_pro/providers/group_provider.dart';
 import 'package:flutter_chat_pro/push_notification/navigation_controller.dart';
 import 'package:flutter_chat_pro/push_notification/notification_services.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
+import 'package:flutter_new_badger/flutter_new_badger.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final PageController pageController = PageController(initialPage: 0);
   int currentIndex = 0;
-  bool _appBadgeSupported = false;
 
   final List<Widget> pages = const [
     MyChatsScreen(),
@@ -40,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
-    initPlatformState();
     requestNotificationPermissions();
     NotificationServices.createNotificationChannelAndInitialize();
     initCloudMessaging();
@@ -51,33 +46,6 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
-  }
-
-  initPlatformState() async {
-    bool appBadgeSupported = false;
-
-    try {
-      bool res = await FlutterAppBadger.isAppBadgeSupported();
-      if (res) {
-        appBadgeSupported = true;
-      } else {
-        appBadgeSupported = false;
-      }
-    } on PlatformException {
-      log('Failed');
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-    setState(() {
-      _appBadgeSupported = appBadgeSupported;
-    });
-    // remove app badge if supported
-    if (_appBadgeSupported) {
-      FlutterAppBadger.removeBadge();
-    }
   }
 
   // request notification permissions
@@ -128,9 +96,7 @@ class _HomeScreenState extends State<HomeScreen>
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (message.notification != null) {
           // update app badge
-          if (_appBadgeSupported) {
-            FlutterAppBadger.updateBadgeCount(1);
-          }
+          FlutterNewBadger.incrementBadgeCount();
           NotificationServices.displayNotification(message);
         }
       });
@@ -172,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen>
               value: true,
             );
         // remove the badge if the app is resumed
-        FlutterAppBadger.removeBadge();
+        FlutterNewBadger.removeBadge();
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:

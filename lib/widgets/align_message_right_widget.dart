@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/providers/authentication_provider.dart';
 import 'package:flutter_chat_pro/widgets/display_message_type.dart';
 import 'package:flutter_chat_pro/widgets/message_reply_preview.dart';
-import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
+import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
 import 'package:provider/provider.dart';
 
 class AlignMessageRightWidget extends StatelessWidget {
@@ -14,19 +14,21 @@ class AlignMessageRightWidget extends StatelessWidget {
     required this.message,
     this.viewOnly = false,
     required this.isGroupChat,
+    required this.controller,
   });
 
   final MessageModel message;
   final bool viewOnly;
   final bool isGroupChat;
+  final ReactionsController controller;
 
   @override
   Widget build(BuildContext context) {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
     // get the reations from the list
-    final messageReations =
-        message.reactions.map((e) => e.split('=')[1]).toList();
+    // final messageReations =
+    //     message.reactions.map((e) => e.split('=')[1]).toList();
     final padding = message.reactions.isNotEmpty
         ? const EdgeInsets.only(left: 20.0, bottom: 25.0)
         : const EdgeInsets.only(bottom: 0.0);
@@ -119,13 +121,17 @@ class AlignMessageRightWidget extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 4,
-              right: 30,
-              child: StackedReactions(
-                reactions: messageReations,
-              ),
-            )
+            if (message.reactions.isNotEmpty)
+              Positioned(
+                bottom: 4,
+                right: 30,
+                child: StackedReactions(
+                  messageId: message.messageId,
+                  controller: controller,
+                  maxReactionsToShow: 3,
+                  //reactionBackgroundColor: Colors.white,
+                ),
+              )
           ],
         ),
       ),

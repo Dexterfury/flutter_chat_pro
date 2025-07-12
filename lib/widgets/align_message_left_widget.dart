@@ -5,7 +5,7 @@ import 'package:flutter_chat_pro/models/message_model.dart';
 import 'package:flutter_chat_pro/utilities/global_methods.dart';
 import 'package:flutter_chat_pro/widgets/display_message_type.dart';
 import 'package:flutter_chat_pro/widgets/message_reply_preview.dart';
-import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
+import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
 
 class AlignMessageLeftWidget extends StatelessWidget {
   const AlignMessageLeftWidget({
@@ -13,19 +13,21 @@ class AlignMessageLeftWidget extends StatelessWidget {
     required this.message,
     this.viewOnly = false,
     required this.isGroupChat,
+    required this.controller,
   });
 
   final MessageModel message;
   final bool viewOnly;
   final bool isGroupChat;
+  final ReactionsController controller;
 
   @override
   Widget build(BuildContext context) {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
     // get the reations from the list
-    final messageReations =
-        message.reactions.map((e) => e.split('=')[1]).toList();
+    // final messageReations =
+    //     message.reactions.map((e) => e.split('=')[1]).toList();
     // check if its dark mode
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final padding = message.reactions.isNotEmpty
@@ -99,13 +101,17 @@ class AlignMessageLeftWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: 0,
-                  left: 50,
-                  child: StackedReactions(
-                    reactions: messageReations,
+                if (message.reactions.isNotEmpty)
+                  Positioned(
+                    bottom: 0,
+                    left: 50,
+                    child: StackedReactions(
+                      messageId: message.messageId,
+                      controller: controller,
+                      maxReactionsToShow: 3,
+                      //reactionBackgroundColor: Colors.white,
+                    ),
                   ),
-                ),
               ],
             ),
           ],

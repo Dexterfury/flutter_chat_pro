@@ -19,7 +19,7 @@ class NotificationServices {
       requestSoundPermission: true,
       requestBadgePermission: true,
       requestAlertPermission: true,
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+      //onDidReceiveLocalNotification: onDidReceiveLocalNotification,
     );
 
     const InitializationSettings initializationSettings =

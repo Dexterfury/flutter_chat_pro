@@ -351,123 +351,41 @@ class ChatProvider extends ChangeNotifier {
     required String messageId,
     required String reaction,
     required bool groupId,
+    required List<String> updatedReactions, // Add this parameter
   }) async {
     // set loading to true
     setLoading(true);
-    // a reaction is saved as senderUID=reaction
-    String reactionToAdd = '$senderUID=$reaction';
 
     try {
       // 1. check if its a group message
       if (groupId) {
-        // 2. get the reaction list from firestore
-        final messageData = await _firestore
+        // Update the message with new reactions list
+        await _firestore
             .collection(Constants.groups)
             .doc(contactUID)
             .collection(Constants.messages)
             .doc(messageId)
-            .get();
-
-        // 3. add the meesaage data to messageModel
-        final message = MessageModel.fromMap(messageData.data()!);
-
-        // 4. check if the reaction list is empty
-        if (message.reactions.isEmpty) {
-          // 5. add the reaction to the message
-          await _firestore
-              .collection(Constants.groups)
-              .doc(contactUID)
-              .collection(Constants.messages)
-              .doc(messageId)
-              .update({
-            Constants.reactions: FieldValue.arrayUnion([reactionToAdd])
-          });
-        } else {
-          // 6. get UIDs list from reactions list
-          final uids = message.reactions.map((e) => e.split('=')[0]).toList();
-
-          // 7. check if the reaction is already added
-          if (uids.contains(senderUID)) {
-            // 8. get the index of the reaction
-            final index = uids.indexOf(senderUID);
-            // 9. replace the reaction
-            message.reactions[index] = reactionToAdd;
-          } else {
-            // 10. add the reaction to the list
-            message.reactions.add(reactionToAdd);
-          }
-
-          // 11. update the message
-          await _firestore
-              .collection(Constants.groups)
-              .doc(contactUID)
-              .collection(Constants.messages)
-              .doc(messageId)
-              .update({Constants.reactions: message.reactions});
-        }
+            .update({Constants.reactions: updatedReactions});
       } else {
-        // handle contact message
-        // 2. get the reaction list from firestore
-        final messageData = await _firestore
+        // Update sender's message
+        await _firestore
             .collection(Constants.users)
             .doc(senderUID)
             .collection(Constants.chats)
             .doc(contactUID)
             .collection(Constants.messages)
             .doc(messageId)
-            .get();
+            .update({Constants.reactions: updatedReactions});
 
-        // 3. add the meesaage data to messageModel
-        final message = MessageModel.fromMap(messageData.data()!);
-
-        // 4. check if the reaction list is empty
-        if (message.reactions.isEmpty) {
-          // 5. add the reaction to the message
-          await _firestore
-              .collection(Constants.users)
-              .doc(senderUID)
-              .collection(Constants.chats)
-              .doc(contactUID)
-              .collection(Constants.messages)
-              .doc(messageId)
-              .update({
-            Constants.reactions: FieldValue.arrayUnion([reactionToAdd])
-          });
-        } else {
-          // 6. get UIDs list from reactions list
-          final uids = message.reactions.map((e) => e.split('=')[0]).toList();
-
-          // 7. check if the reaction is already added
-          if (uids.contains(senderUID)) {
-            // 8. get the index of the reaction
-            final index = uids.indexOf(senderUID);
-            // 9. replace the reaction
-            message.reactions[index] = reactionToAdd;
-          } else {
-            // 10. add the reaction to the list
-            message.reactions.add(reactionToAdd);
-          }
-
-          // 11. update the message to sender firestore location
-          await _firestore
-              .collection(Constants.users)
-              .doc(senderUID)
-              .collection(Constants.chats)
-              .doc(contactUID)
-              .collection(Constants.messages)
-              .doc(messageId)
-              .update({Constants.reactions: message.reactions});
-
-          // 12. update the message to contact firestore location
-          await _firestore
-              .collection(Constants.users)
-              .doc(contactUID)
-              .collection(Constants.chats)
-              .doc(senderUID)
-              .collection(Constants.messages)
-              .doc(messageId)
-              .update({Constants.reactions: message.reactions});
-        }
+        // Update contact's message
+        await _firestore
+            .collection(Constants.users)
+            .doc(contactUID)
+            .collection(Constants.chats)
+            .doc(senderUID)
+            .collection(Constants.messages)
+            .doc(messageId)
+            .update({Constants.reactions: updatedReactions});
       }
 
       // set loading to false

@@ -1,9 +1,9 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
+    id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
     // Add the dependency for the Google services Gradle plugin
-    id("com.google.gms.google-services") version "4.4.1" apply false
+    id("com.google.gms.google-services")
 }
 
 def localProperties = new Properties()
@@ -26,12 +26,13 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.flutter_chat_pro"
-    compileSdkVersion 34
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -74,4 +75,5 @@ dependencies {
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"
 }
