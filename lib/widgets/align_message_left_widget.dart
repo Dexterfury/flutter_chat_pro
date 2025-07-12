@@ -26,8 +26,8 @@ class AlignMessageLeftWidget extends StatelessWidget {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
     // get the reations from the list
-    final messageReations =
-        message.reactions.map((e) => e.split('=')[1]).toList();
+    // final messageReations =
+    //     message.reactions.map((e) => e.split('=')[1]).toList();
     // check if its dark mode
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final padding = message.reactions.isNotEmpty
@@ -105,9 +105,7 @@ class AlignMessageLeftWidget extends StatelessWidget {
                   bottom: 0,
                   left: 50,
                   child: StackedReactions(
-                    messageId: message.messageId,
-                    controller: controller,
-                    maxReactionsToShow: 3,
+                    reactions: messageReations,
                   ),
                 ),
               ],

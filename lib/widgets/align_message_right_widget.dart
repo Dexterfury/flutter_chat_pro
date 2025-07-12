@@ -27,8 +27,8 @@ class AlignMessageRightWidget extends StatelessWidget {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
     // get the reations from the list
-    final messageReations =
-        message.reactions.map((e) => e.split('=')[1]).toList();
+    // final messageReations =
+    //     message.reactions.map((e) => e.split('=')[1]).toList();
     final padding = message.reactions.isNotEmpty
         ? const EdgeInsets.only(left: 20.0, bottom: 25.0)
         : const EdgeInsets.only(bottom: 0.0);
@@ -125,9 +125,7 @@ class AlignMessageRightWidget extends StatelessWidget {
               bottom: 4,
               right: 30,
               child: StackedReactions(
-                messageId: message.messageId,
-                controller: controller,
-                maxReactionsToShow: 3,
+                reactions: messageReations,
               ),
             )
           ],

@@ -141,11 +141,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           iconContainerColor: Colors.red,
                                           onTap: () async {
                                             // navigate to account settings
-                                            final settins =
-                                                OpenSettingsPlusAndroid();
-
-                                            await settins
-                                                .applicationNotification();
+                                            OpenSettings
+                                                .openAppNotificationSetting();
                                           },
                                         ),
                                       ],
